@@ -1,0 +1,146 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: black;
+    color: white;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: BinancePlex, Arial, sans-serif !important;
+}
+  
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 40px;
+    margin-right: 0px;
+}
+
+.site-name {
+    font-size: 22px;
+    font-weight: bold;
+    align-items: center;
+
+    color:#0057ee;
+    font:BinancePlex, Arial, sans-serif !important;
+    margin-right: 15px;
+}
+
+.navbar-left p {
+    margin: 0;
+    margin-left: 20px;
+    margin-right: 20px;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}
+
+.navbar-center p a {
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s;
+}
+
+
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.search {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+
+
+.btn{
+position: relative;
+color: #0057ee;
+margin: 0;
+font-size: 14px;
+font-weight: 500;
+letter-spacing: 0.7px;
+font-family: inherit;
+text-transform: uppercase;
+padding: 12px 25px;
+margin-right: 10px;
+justify-content: center;
+align-items: center;
+border-radius: 10px;
+outline: none;
+cursor: pointer;
+z-index: 0;
+overflow: hidden;
+border: 1px solid;
+}
+
+.btn:hover {
+    transform: scale(1.01); /* Slightly increase size */
+    box-shadow: 0px 0px 20px rgba(0, 92, 252, 0.6); /* Add soft glow */
+    background-color:transparent;
+    color: #fff;
+}
+
+/* Active effect (when clicked) */
+.btn:active {
+transform: scale(1.02);
+box-shadow: 0px 0px 10px rgba(0, 87, 238, 0.5);
+}
+
+/* SearchButton.css */
+.search {
+background-color: transparent; /* Transparent background */
+border: 2px solid #0057ee;
+padding: 10px;
+cursor: pointer;
+transition: all 0.3s ease-in-out;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #0057ee;
+width: 50px;
+height: 50px;
+border: 0px;
+}
+
+
+
+/* SVG styling */
+.search svg {
+width: 24px;
+height: 24px;
+stroke: #f3f7ff;
+fill: none;
+transition: stroke 0.3s ease-in-out;
+background-color: transparent; /* Ensures SVG has no background */
+}
+
+
+  
+  
+    
+  
+
+  
+  
+
+  
+
+
+  
+
+
+
+
