@@ -43,6 +43,8 @@ dependencies {
 	implementation 'jakarta.mail:jakarta.mail-api:2.1.2'
 	implementation 'com.sun.mail:jakarta.mail:2.0.1'
 	implementation 'org.springframework.boot:spring-boot-starter-mail:1.2.0.RELEASE'
+	implementation 'com.razorpay:razorpay-java:1.4.3'
+	implementation 'com.stripe:stripe-java:22.4.0'
 }
 
 tasks.named('test') {

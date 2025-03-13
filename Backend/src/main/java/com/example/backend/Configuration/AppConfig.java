@@ -1,5 +1,6 @@
 package com.example.backend.Configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,11 +12,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 public class AppConfig {
 
-    private final CorsConfigurationSource corsConfigurationSource;
 
-    public AppConfig(CorsConfigurationSource corsConfigurationSource) {
-        this.corsConfigurationSource = corsConfigurationSource;
-    }
+
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
+
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

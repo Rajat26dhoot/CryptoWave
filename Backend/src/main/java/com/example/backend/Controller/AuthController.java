@@ -8,6 +8,7 @@ import com.example.backend.Response.AuthResponse;
 import com.example.backend.Service.CustomUserDetailsService;
 import com.example.backend.Service.EmailService;
 import com.example.backend.Service.TwoFactorOtpService;
+import com.example.backend.Service.WatchListService;
 import com.example.backend.Utils.OtpUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +33,14 @@ public class AuthController {
     private final CustomUserDetailsService customUserDetailsService;
     private final TwoFactorOtpService twoFactorOtpService;
     private final EmailService emailService;
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, CustomUserDetailsService customUserDetailsService, TwoFactorOtpService twoFactorOtpService,EmailService emailService) {
+    private final WatchListService watchListService;
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, CustomUserDetailsService customUserDetailsService, TwoFactorOtpService twoFactorOtpService,EmailService emailService,WatchListService watchListService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.customUserDetailsService = customUserDetailsService;
         this.twoFactorOtpService = twoFactorOtpService;
         this.emailService = emailService;
+        this.watchListService = watchListService;
     }
 
     @PostMapping("/signup")
@@ -59,6 +62,8 @@ public class AuthController {
         newUser.setPassword(hashedPassword);
 
         User savedUser = userRepository.save(newUser);
+
+        watchListService.createWatchList(savedUser);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 savedUser.getEmail(),

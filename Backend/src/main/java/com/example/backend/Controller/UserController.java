@@ -36,8 +36,10 @@ public class UserController {
     private ForgotPasswordService forgotPasswordService;
 
     @GetMapping("/api/users/profile")
-    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String token) {
-        User user = userService.findUserProfileByJWT(token);
+    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String jwt) throws Exception {
+        System.out.println(jwt);
+        User user = userService.findUserProfileByJWT(jwt);
+        System.out.println(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -138,9 +140,6 @@ public class UserController {
         throw new Exception("Wrong otp");
 
     }
-
-
-
 
 
 

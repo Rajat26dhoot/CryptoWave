@@ -15,12 +15,13 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoder =new BCryptPasswordEncoder();
     }
 
     @Override
@@ -28,22 +29,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    @Override
-    public User findUserByJWT(String jwt) {
-        String email = JwtProvider.getEmailFromToken(jwt);
-        User user = userRepository.findByEmail(email);
 
-        if (user == null) {
-            throw new RuntimeException("User Not Found");
+    @Override
+    public User findUserById(Long userId) throws Exception {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new Exception("User not Found");
         }
-
-        return user;
-    }
-
-    @Override
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.get();
     }
 
     @Override
@@ -64,7 +57,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserProfileByJWT(String jwt) {
-        return null;
+    public User findUserProfileByJWT(String jwt) throws Exception {
+        String email=JwtProvider.getEmailFromToken(jwt);
+        User user=userRepository.findByEmail(email);
+
+        if(user==null){
+            throw new Exception("User Not Found");
+        }
+        return user;
     }
 }
