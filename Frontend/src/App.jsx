@@ -1,12 +1,16 @@
-import './App.css';
-import Home from './Pages/Home/Home.jsx';
+import './App.css'
+import React from 'react'
+import Home from './Pages/Home'
+import Login from './Pages/Login'
 
 function App() {
   return (
-    <div className="app">
-      <Home />
-    </div>
-  );
+  
+       
+        <Home/>
+      
+  
+  )
 }
 
-export default App;
+export default App

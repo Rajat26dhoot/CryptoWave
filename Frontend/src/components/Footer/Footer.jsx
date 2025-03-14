@@ -1,108 +1,84 @@
-import React from 'react';
-import { Facebook, Twitter,  Instagram, Youtube} from 'lucide-react';
-import './Footer.css';
+import { FaEnvelope, FaXTwitter, FaDiscord, FaLinkedin, FaReddit, FaYoutube } from "react-icons/fa6";
 
-function Footer(){
-  return (
-    <footer>
-      {/* Community */}
-      <div>
-        <h3 className='Community'>Community</h3>
-        <ul>
-          <li><Facebook /> Facebook</li>
-          <li><Twitter /> X (Twitter)</li>
-          <li><Instagram /> Instagram</li>
-          <li><Youtube /> YouTube</li>
-        </ul>
-      </div>
+const Footer = () => {
+    return (
+        <footer className="bg-black text-white py-12 border-t border-gray-700">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-5 gap-8">
+                    {/* Left Section */}
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-green-400 rounded-md"></div>
+                            <span className="text-green-400 font-bold text-lg">CryptoWave</span>
+                        </div>
+                        <p className="text-gray-400 mt-4 text-sm">
+                            Your modern coding superpowers.
+                        </p>
+                        <div className="flex space-x-4 mt-4">
+                            <FaEnvelope className="text-gray-400 hover:text-green-400 cursor-pointer text-xl" />
+                            <FaXTwitter className="text-gray-400 hover:text-green-400 cursor-pointer text-xl" />
+                            <FaDiscord className="text-gray-400 hover:text-green-400 cursor-pointer text-xl" />
+                            <FaLinkedin className="text-gray-400 hover:text-green-400 cursor-pointer text-xl" />
+                            <FaReddit className="text-gray-400 hover:text-green-400 cursor-pointer text-xl" />
+                            <FaYoutube className="text-gray-400 hover:text-green-400 cursor-pointer text-xl" />
+                        </div>
+                    </div>
 
-      {/* Products */}
-      <div className='Products'>
-        <h3>Products</h3>
-        <ul>
-          <li>Exchange</li>
-          <li>Buy Crypto</li>
-          <li>Pay</li>
-          <li>Academy</li>
-          <li>Live</li>
-          <li>Tax</li>
-          <li>Gift Card</li>
-          <li>Launchpool</li>
-          <li>Auto-Invest</li>
-          <li>ETH Staking</li>
-          <li>NFT</li>
-          <li>BABT</li>
-          <li>Research</li>
-          <li>Charity</li>
-        </ul>
-      </div>
+                    {/* Middle Sections */}
+                    <div>
+                        <h3 className="text-white font-semibold mb-3">Product</h3>
+                        <ul className="space-y-2 text-gray-400 text-sm">
+                            <li className="hover:text-green-400 cursor-pointer">Windsurf Editor</li>
+                            <li className="hover:text-green-400 cursor-pointer">Codeium Extension</li>
+                            <li className="hover:text-green-400 cursor-pointer">Live</li>
+                            <li className="hover:text-green-400 cursor-pointer">Forge</li>
+                            <li className="hover:text-green-400 cursor-pointer">Pricing</li>
+                            <li className="hover:text-green-400 cursor-pointer">Codeium for Enterprise</li>
+                        </ul>
+                    </div>
 
-      {/* Business */}
-      <div className='Business'>
-        <h3>Business</h3>
-        <ul>
-          <li>P2P Merchant Application</li>
-          <li>P2Pro Merchant Application</li>
-          <li>Listing Application</li>
-          <li>Institutional & VIP Services</li>
-          <li>Labs</li>
-          <li>Binance Connect</li>
-        </ul>
-      </div>
+                    <div>
+                        <h3 className="text-white font-semibold mb-3">Capabilities</h3>
+                        <ul className="space-y-2 text-gray-400 text-sm">
+                            <li className="hover:text-green-400 cursor-pointer">Cascade</li>
+                            <li className="hover:text-green-400 cursor-pointer">Supercomplete</li>
+                            <li className="hover:text-green-400 cursor-pointer">Autocomplete</li>
+                            <li className="hover:text-green-400 cursor-pointer">Codeium Chat</li>
+                            <li className="hover:text-green-400 cursor-pointer">Command</li>
+                        </ul>
+                    </div>
 
-      {/* Learn */}
-      <div className='Learn'>
-        <h3>Learn</h3>
-        <ul>
-          <li>Learn & Earn</li>
-          <li>Browse Crypto Prices</li>
-          <li>Bitcoin Price</li>
-          <li>Ethereum Price</li>
-          <li>Browse Crypto Price Predictions</li>
-          <li>Bitcoin Price Prediction</li>
-          <li>Ethereum Price Prediction</li>
-          <li>Ethereum Upgrade (Pectra)</li>
-          <li>Buy Bitcoin</li>
-          <li>Buy BNB</li>
-          <li>Buy XRP</li>
-          <li>Buy Dogecoin</li>
-        </ul>
-      </div>
+                    <div>
+                        <h3 className="text-white font-semibold mb-3">Company</h3>
+                        <ul className="space-y-2 text-gray-400 text-sm">
+                            <li className="hover:text-green-400 cursor-pointer">About Us</li>
+                            <li className="hover:text-green-400 cursor-pointer">Blog</li>
+                            <li className="hover:text-green-400 cursor-pointer">Careers</li>
+                            <li className="hover:text-green-400 cursor-pointer">Compare</li>
+                            <li className="hover:text-green-400 cursor-pointer">Contact</li>
+                            <li className="hover:text-green-400 cursor-pointer">Partnerships</li>
+                            <li className="hover:text-green-400 cursor-pointer">Privacy Policy</li>
+                        </ul>
+                    </div>
 
-      {/* Service */}
-      <div className='Service'>
-        <h3>Service</h3>
-        <ul>
-          <li>Affiliate</li>
-          <li>Referral</li>
-          <li>BNB</li>
-          <li>OTC Trading</li>
-          <li>Historical Market Data</li>
-          <li>Trading Insight</li>
-          <li>Proof of Reserves</li>
-        </ul>
-      </div>
+                    <div>
+                        <h3 className="text-white font-semibold mb-3">Connect</h3>
+                        <ul className="space-y-2 text-gray-400 text-sm">
+                            <li className="hover:text-green-400 cursor-pointer">Contact</li>
+                            <li className="hover:text-green-400 cursor-pointer">Events</li>
+                            <li className="hover:text-green-400 cursor-pointer">Hackathons</li>
+                            <li className="hover:text-green-400 cursor-pointer">Community</li>
+                            <li className="hover:text-green-400 cursor-pointer">Students</li>
+                        </ul>
+                    </div>
+                </div>
 
-      {/* Support */}
-      <div className='Support'>
-        <h3>Support</h3>
-        <ul>
-          <li>24/7 Chat Support</li>
-          <li>Support Center</li>
-          <li>Product Feedback & Suggestions</li>
-          <li>Fees</li>
-          <li>APIs</li>
-          <li>Binance Verify</li>
-          <li>Trading Rules</li>
-          <li>Binance Airdrop Portal</li>
-          <li>Law Enforcement Requests</li>
-        </ul>
-      </div>
-      <div className="footer-bottom">
-        <p>&copy; 2025 CryptoWave. All Rights Reserved.</p>
-      </div>
-    </footer>
-  );
+                <div className="mt-5 pt-4 text-center text-gray-500 text-sm">
+                    © 2025 All rights reserved.
+                </div>
+            </div>
+        </footer>
+    );
 };
 
 export default Footer;

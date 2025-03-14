@@ -1,49 +1,31 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import logo from '../../assets/logo.svg';
-import './Navbar.css';
 
-function Navbar() {
-    return (
-        <div className="navbar">
-            <div className="navbar-left">
-            <img src={logo}  className="logo-img" />
-                <h2 className="site-name">CryptoWave</h2>
-                <p>Buy & Sell Crypto </p>
-                <p>About Us </p>
-                <p>Market </p>
-                <p>More</p>
-            </div>
+const Navbar = ({ onOpen }) => {
+  return (
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[85%]">
+      <nav className="bg-white/5 backdrop-blur-md py-2.5 px-6 rounded-xl shadow-lg border border-gray-500">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="text-green-400 text-lg font-bold">CryptoWave</div>
+          </div>
 
-           { /*<div className="navbar-center">
-                 <p><Link to="/buy-sell">Buy & Sell Crypto</Link></p>
-                <p><Link to="/about">About Us</Link></p>
-                <p><Link to="/market">Market</Link></p> 
-               
-            </div>*/}
+          <div className="flex space-x-6">
+            <a href="/" className="text-gray-400 hover:text-green-400">Home</a>
+            <a href="/about" className="text-gray-400 hover:text-green-400">About</a>
+            <a href="/services" className="text-gray-400 hover:text-green-400">Services</a>
+            <a href="/contact" className="text-gray-400 hover:text-green-400">Contact</a>
+          </div>
 
-            <div className="navbar-right">
-            <button className="search">
-                <svg
-                    viewBox="0 0 19.9 19.7"
-                    xmlns="http://www.w3.org/2000/svg"
-                    role="img"
-                    aria-labelledby="title desc"
-                    className="svg-icon search-icon"  /* Use className instead of class */
-                >
-                    <title id="title">Search</title>
-                    <desc id="desc">Search Icon</desc>
-                    <circle cx="8" cy="8" r="7" stroke="#0057ee" strokeWidth="2" fill="none" />
-                    <line x1="12" y1="12" x2="18" y2="18" stroke="#0057ee" strokeWidth="2" />
-                </svg>
-                </button>
-
-                <button className="btn">Sign up</button>
-                <button className="btn">Login</button>
-            </div>
+          <button
+            onClick={onOpen}
+            className="bg-green-400 hover:bg-green-500 text-black px-8 py-0.5 rounded-md font-bold transition"
+          >
+            Login
+          </button>
         </div>
-    );
-}
+      </nav>
+    </div>
+  );
+};
 
 export default Navbar;
-

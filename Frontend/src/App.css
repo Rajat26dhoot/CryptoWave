@@ -1,7 +1,13 @@
-*{
-    background-color: black;
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600&display=swap');
+
+body, html {
+  background-color: black;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Libre Franklin', sans-serif;
+ /* Optional: Set text color to white for better visibility */
 }
-body {
-    font-family: BinancePlex, Arial, sans-serif !important;
-}
-  
+
+
