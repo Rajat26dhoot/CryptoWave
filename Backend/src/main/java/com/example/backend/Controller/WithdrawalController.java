@@ -32,7 +32,7 @@ public class WithdrawalController {
 //    @Autowired
 //    private WalletTransactionService walletTransactionService;
 
-    @PostMapping("/api/withdrawal/{amount}")
+    @PostMapping("/{amount}")
     public ResponseEntity<?> withdrawalRequest(
             @PathVariable Long amount,
             @RequestHeader("Authorization") String jwt
@@ -48,7 +48,7 @@ public class WithdrawalController {
     }
 
 
-    @PatchMapping("/api/admin/withdrawal/{id}/proceed/{accept}")
+    @PatchMapping("/admin/{id}/proceed/{accept}")
     public ResponseEntity<?> processWithdrawal(@PathVariable Long id,
                                                @PathVariable boolean accept,
                                                @RequestHeader("Authorization") String jwt)throws Exception{
@@ -65,7 +65,7 @@ public class WithdrawalController {
         return new ResponseEntity<>(withdrawal, HttpStatus.OK);
     }
 
-    @GetMapping("/api/withdrawal")
+    @GetMapping("")
     public ResponseEntity<List<Withdrawal>> getWithdrawalHistory(
             @RequestHeader("Authorization") String jwt
     ) throws Exception{
@@ -76,7 +76,7 @@ public class WithdrawalController {
         return new ResponseEntity<>(withdrawals, HttpStatus.OK);
     }
 
-    @GetMapping("/api/admin/withdrawal")
+    @GetMapping("/admin")
     public ResponseEntity<List<Withdrawal>> getAllWithdrawalRequest(
             @RequestHeader("Authorization")String jwt
     )throws Exception{

@@ -22,7 +22,7 @@ public class OrderServiceImpl  implements  OrderService{
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
+    @Autowired(required = true)
     private WalletService walletService;
 
     @Autowired

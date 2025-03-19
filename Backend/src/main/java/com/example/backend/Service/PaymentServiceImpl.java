@@ -42,6 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentOrder.setUser(user);
         paymentOrder.setAmount(amount);
         paymentOrder.setPaymentMethod(paymentMethod);
+        paymentOrder.setStatus(PaymentOrderStaus.PENDING);
         return paymentOrderRepository.save(paymentOrder);
     }
 
@@ -51,17 +52,22 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Boolean ProceedPaymentOrder(PaymentOrder paymentOrder, String paymentId) throws RazorpayException {
-        if(paymentOrder.getStatus().equals(PaymentOrderStaus.PENDING)){
-            if(paymentOrder.getPaymentMethod().equals(PaymentMethod.RAZORPAY)){
-                RazorpayClient razorpay=new RazorpayClient(apiKey,apiSecretKey);
-                Payment payment=razorpay.payments.fetch(paymentId);
+    public Boolean ProceedPaymentOrder(PaymentOrder paymentOrder, String paymentId) throws Exception {
+        if (paymentOrder.getStatus() == null) {
+            paymentOrder.setStatus(PaymentOrderStaus.PENDING);
+        }
 
-                Integer amount=payment.get("amount");
-                String status=payment.get("status");
+        if (paymentOrder.getStatus().equals(PaymentOrderStaus.PENDING)) {
+            if (paymentOrder.getPaymentMethod().equals(PaymentMethod.RAZORPAY)) {
+                RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecretKey);
+                Payment payment = razorpay.payments.fetch(paymentId);
 
-                if(status.equals("captured")){
+                Integer amount = payment.get("amount");
+                String status = payment.get("status");
+
+                if (status.equals("captured")) {
                     paymentOrder.setStatus(PaymentOrderStaus.SUCCESS);
+                    paymentOrderRepository.save(paymentOrder);
                     return true;
                 }
 
@@ -69,12 +75,39 @@ public class PaymentServiceImpl implements PaymentService {
                 paymentOrderRepository.save(paymentOrder);
                 return false;
             }
-            paymentOrder.setStatus(PaymentOrderStaus.SUCCESS);
-            paymentOrderRepository.save(paymentOrder);
-            return true;
+
+            if (paymentOrder.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
+                Stripe.apiKey = stripeSecretKey;
+
+                try {
+                    // Fetch session details using session ID (paymentId)
+                    Session session = Session.retrieve(paymentId);
+
+                    Long amount = session.getAmountTotal(); // Amount in cents
+                    String status = session.getStatus(); // Payment status
+
+                    if ("complete".equals(status) && amount.equals(paymentOrder.getAmount() * 100)) {
+                        paymentOrder.setStatus(PaymentOrderStaus.SUCCESS);
+                        paymentOrderRepository.save(paymentOrder);
+                        return true;
+                    }
+
+                    paymentOrder.setStatus(PaymentOrderStaus.FAILED);
+                    paymentOrderRepository.save(paymentOrder);
+                    return false;
+
+                } catch (StripeException e) {
+                    System.out.println("Error fetching Stripe session: " + e.getMessage());
+                    paymentOrder.setStatus(PaymentOrderStaus.FAILED);
+                    paymentOrderRepository.save(paymentOrder);
+                    return false;
+                }
+            }
         }
         return false;
     }
+
+
 
     @Override
     public PaymentResponse createRazorpayPaymentLink(User user, Long amount,Long orderId) throws RazorpayException {
@@ -124,7 +157,7 @@ public class PaymentServiceImpl implements PaymentService {
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:5173/wallet?order_id=" + orderId)
+                .setSuccessUrl("http://localhost:5173/wallet?order_id=" + orderId+"&payment_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl("http://localhost:5173/payment/cancel")
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)

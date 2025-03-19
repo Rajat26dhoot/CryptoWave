@@ -73,10 +73,10 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String jwtToken = JwtProvider.generateToken(auth);
+        String jwt = JwtProvider.generateToken(auth);
 
         AuthResponse authResponse = new AuthResponse();
-        authResponse.setToken(jwtToken);
+        authResponse.setJwt(jwt);
         authResponse.setStatus(true);
         authResponse.setMessage("Registration successful");
 
@@ -93,7 +93,7 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String jwtToken = JwtProvider.generateToken(auth);
+        String jwt = JwtProvider.generateToken(auth);
 
         User authuser =userRepository.findByEmail(email);
 
@@ -108,7 +108,7 @@ public class AuthController {
                 twoFactorOtpService.deleteTwoFactorOtp(oldTwoFactorOtp);
             }
 
-            TwoFactorOtp newTwoFactorOtp = twoFactorOtpService.createTwoFactorOtp(authuser,otp,jwtToken);
+            TwoFactorOtp newTwoFactorOtp = twoFactorOtpService.createTwoFactorOtp(authuser,otp,jwt);
 
             emailService.sendVerificationOtpEmail(email,otp);
 
@@ -120,7 +120,7 @@ public class AuthController {
         }
 
         AuthResponse authResponse = new AuthResponse();
-        authResponse.setToken(jwtToken);
+        authResponse.setJwt(jwt);
         authResponse.setStatus(true);
         authResponse.setMessage("Login successful");
 
@@ -154,7 +154,7 @@ public class AuthController {
             AuthResponse authResponse = new AuthResponse();
             authResponse.setMessage("Two-factor authentication verified");
             authResponse.setTwoFactorAuthEnabled(true);
-            authResponse.setToken(twoFactorOtp.getJwt());
+            authResponse.setJwt(twoFactorOtp.getJwt());
             return new ResponseEntity<>(authResponse, HttpStatus.OK);
 
         }

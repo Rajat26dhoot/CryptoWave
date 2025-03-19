@@ -38,7 +38,7 @@ public class AssetController {
 
 
     @GetMapping()
-    public ResponseEntity<List<Asset>> getAssetsForUser(@RequestHeader("Authroization") String jwt)throws Exception {
+    public ResponseEntity<List<Asset>> getAssetsForUser(@RequestHeader("Authorization") String jwt)throws Exception {
         User user=userService.findUserProfileByJWT(jwt);
         List<Asset> assets=assetService.getUserAssets(user.getId());
         return ResponseEntity.ok().body(assets);

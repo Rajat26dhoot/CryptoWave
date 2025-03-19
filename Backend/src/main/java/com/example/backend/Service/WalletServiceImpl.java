@@ -16,7 +16,8 @@ public class WalletServiceImpl implements WalletService {
 
 
     @Autowired
-   private WalletRepository WalletRepository;
+    private WalletRepository WalletRepository;
+
     @Autowired
     private WalletRepository walletRepository;
 
@@ -27,6 +28,7 @@ public class WalletServiceImpl implements WalletService {
         if(wallet==null){
             wallet=new Wallet();
             wallet.setUser(user);
+            WalletRepository.save(wallet);
         }
         return wallet;
     }
@@ -63,7 +65,6 @@ public class WalletServiceImpl implements WalletService {
         walletRepository.save(receiverwallet);
 
         return senderWallet;
-
     }
 
     @Override

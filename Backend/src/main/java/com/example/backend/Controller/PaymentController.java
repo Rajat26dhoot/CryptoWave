@@ -40,7 +40,6 @@ public class PaymentController {
             paymentResponse=paymentService.createRazorpayPaymentLink(user,amount,order.getId());
         }else{
             paymentResponse=paymentService.createStripePaymentLink(user,amount,order.getId());
-
         }
         return new ResponseEntity<>(paymentResponse, HttpStatus.CREATED);
 

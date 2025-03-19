@@ -29,7 +29,6 @@ public class CoinController {
     }
 
 
-
     @GetMapping("{coinId}/chart")
     ResponseEntity<JsonNode> getMarketChart(@PathVariable String coinId,
                                               @RequestParam("days") int days) throws Exception {

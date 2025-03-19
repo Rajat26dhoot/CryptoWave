@@ -23,7 +23,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-
     @Autowired
     private UserService userService;
 
@@ -33,7 +32,7 @@ public class OrderController {
 
     @PostMapping("/pay")
     public ResponseEntity<Order> payOrderPayment(
-            @RequestHeader("Authroization") String jwt,
+            @RequestHeader("Authorization") String jwt,
             @RequestBody CreateOrderRequest req
             ) throws Exception{
         User user=userService.findUserProfileByJWT(jwt);
@@ -69,9 +68,4 @@ public class OrderController {
         return ResponseEntity.ok(userOrders);
     }
 
-
-
-
-
-    
 }

@@ -23,7 +23,7 @@ public class PaymentDetailController {
 
 
     @PostMapping("/payment-details")
-    public ResponseEntity<PaymentDetails> addPaymentDetails(@RequestBody PaymentDetails paymentDetailsRequest, @RequestHeader("Authorizatiom") String jwt) throws Exception {
+    public ResponseEntity<PaymentDetails> addPaymentDetails(@RequestBody PaymentDetails paymentDetailsRequest, @RequestHeader("Authorization") String jwt) throws Exception {
         User user=userService.findUserProfileByJWT(jwt);
         PaymentDetails paymentDetails=paymentDetailsService.addPaymentDetails(
                 paymentDetailsRequest.getAccountNumber(),
@@ -38,7 +38,7 @@ public class PaymentDetailController {
     }
 
     @GetMapping("/payment-details")
-    public ResponseEntity<PaymentDetails> getUserPaymentDetails(@RequestHeader("Authorizatiom") String jwt) throws Exception {
+    public ResponseEntity<PaymentDetails> getUserPaymentDetails(@RequestHeader("Authorization") String jwt) throws Exception {
         User user=userService.findUserProfileByJWT(jwt);
         PaymentDetails paymentDetails=paymentDetailsService.getUserPaymentDetails(user);
         return new ResponseEntity<>(paymentDetails, HttpStatus.CREATED);

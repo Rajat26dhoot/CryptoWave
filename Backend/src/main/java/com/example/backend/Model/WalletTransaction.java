@@ -2,6 +2,7 @@ package com.example.backend.Model;
 
 
 import com.example.backend.Domain.WalletTransactionType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
