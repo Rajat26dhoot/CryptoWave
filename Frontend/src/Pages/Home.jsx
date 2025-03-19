@@ -12,7 +12,6 @@ const Home = () => {
       <Navbar onOpen={() => setShowLogin(true)} />
       <HomeMiddle />
       <Footer />
-
       {showLogin && <Login onClose={() => setShowLogin(false)} />}
     </div>
   );
