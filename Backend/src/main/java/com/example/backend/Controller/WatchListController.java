@@ -43,7 +43,7 @@ public class WatchListController {
     @GetMapping("{watchListId}")
     public ResponseEntity<WatchList> getWatchListById(
             @PathVariable Long watchListId
-    ) throws Exception{
+    ) throws Exception{ 
         WatchList watchList=watchListService.findById(watchListId);
         return ResponseEntity.ok(watchList);
     }
