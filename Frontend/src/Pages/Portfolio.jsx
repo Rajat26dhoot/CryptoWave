@@ -24,7 +24,7 @@ const Portfolio = () => {
 
   return (
     <div className="overflow-x-auto px-4">
-      <div className="px-8 mb-20 mt-20">
+      <div className="px-8 mb-20 mt-25">
         <h1 className="mb-4 ml-2 text-green-400 text-4xl font-bold">
           Portfolio
         </h1>

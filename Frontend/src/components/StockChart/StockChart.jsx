@@ -1,22 +1,38 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { AgCharts } from "ag-charts-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMarketChart } from "../../State/Coin/Action";
 
 const StockChart = ({ data }) => {
   const [options, setOptions] = useState(null);
-  const [isFullScreen, setIsFullScreen] = useState(false); // ✅ Track full-screen state
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // ✅ Prevent double fetching
   const dispatch = useDispatch();
   const chartRef = useRef(null);
 
-  useEffect(() => {
-    if (data.id && data.days) {
-      dispatch(fetchMarketChart({ coinId: data.id, days: data.days }));
-    }
-  }, [dispatch, data.id, data.days]);
-
   const chartData = useSelector((state) => state.coin.marketChart.data);
-  console.log("Data:", chartData);
+  const lastFetched = useRef({ id: null, days: null }); // ✅ Store last fetched values
+
+  // ✅ Fetch only if data changes and not already fetched
+  const fetchData = useCallback(() => {
+    if (
+      data.id &&
+      data.days &&
+      !isLoading &&
+      (lastFetched.current.id !== data.id || lastFetched.current.days !== data.days)
+    ) {
+      setIsLoading(true);
+      dispatch(fetchMarketChart({ coinId: data.id, days: data.days }))
+        .finally(() => setIsLoading(false));
+
+      // ✅ Update last fetched values
+      lastFetched.current = { id: data.id, days: data.days };
+    }
+  }, [data.id, data.days, dispatch, isLoading]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
     if (chartData?.length) {
@@ -83,7 +99,7 @@ const StockChart = ({ data }) => {
     }
   };
 
-  // ✅ Close full screen on double-click or Escape key
+  // ✅ Close full screen on Escape key or exit
   useEffect(() => {
     const handleExitFullScreen = () => {
       if (!document.fullscreenElement) {
@@ -91,9 +107,7 @@ const StockChart = ({ data }) => {
       }
     };
 
-    // ✅ Listen for full-screen change or Escape key
     document.addEventListener("fullscreenchange", handleExitFullScreen);
-
     return () => {
       document.removeEventListener("fullscreenchange", handleExitFullScreen);
     };
@@ -101,36 +115,36 @@ const StockChart = ({ data }) => {
 
   return (
     <div
-  ref={chartRef}
-  className={`w-full ${isFullScreen ? "h-screen" : "h-[400px]"} 
-    bg-black text-white border border-gray-700 rounded-lg p-4 relative flex flex-col`}
-  onDoubleClick={handleFullScreen} // ✅ Double-click to toggle full screen
->
-  <h2 className="text-lg font-bold mb-4">Stock Chart</h2>
+      ref={chartRef}
+      className={`w-full ${isFullScreen ? "h-screen" : "h-[400px]"} 
+      bg-black text-white border border-green-400 rounded-lg p-4 relative flex flex-col`}
+      onDoubleClick={handleFullScreen}
+    >
+      <h2 className="text-lg font-bold mb-4">Stock Chart</h2>
 
-  {/* ✅ Chart Container */}
-  <div className="flex-grow w-full h-full">
-    {options ? (
-      <AgCharts
-        options={options}
-        className="w-full h-full" // ✅ Ensure AgCharts takes up full height
-      />
-    ) : (
-      <div className="text-gray-400 flex items-center justify-center h-full">
-        Loading chart data...
+      {/* ✅ Chart Container */}
+      <div className="flex-grow w-full h-full">
+        {options ? (
+          <AgCharts options={options} className="w-full h-full" />
+        ) : isLoading ? (
+          <div className="text-gray-400 flex items-center justify-center h-full">
+            Loading chart data...
+          </div>
+        ) : (
+          <div className="text-gray-400 flex items-center justify-center h-full">
+            No data available.
+          </div>
+        )}
       </div>
-    )}
-  </div>
 
-  {/* ✅ Full-Screen Button */}
-  <button
-    onClick={handleFullScreen}
-    className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition z-10"
-  >
-    {isFullScreen ? "Exit Full Screen" : "Full Screen"}
-  </button>
-</div>
-
+      {/* ✅ Full-Screen Button */}
+      <button
+        onClick={handleFullScreen}
+        className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition z-10"
+      >
+        {isFullScreen ? "Exit Full Screen" : "Full Screen"}
+      </button>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import StockChart from '../StockChart/StockChart';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCoinList } from '../../State/Coin/Action';
@@ -14,9 +14,18 @@ const Dashboardcontent = () => {
 
   const { coinList = [] } = useSelector((state) => state.coin);
 
+  // ✅ Debounce function to prevent excessive API calls
+  const debouncedGetCoinList = useCallback(() => {
+    const handler = setTimeout(() => {
+      dispatch(getCoinList(currentPage));
+    }, 500); // 500ms delay (adjust as needed)
+
+    return () => clearTimeout(handler);
+  }, [currentPage, dispatch]);
+
   useEffect(() => {
-    dispatch(getCoinList(currentPage));
-  }, [dispatch, currentPage]);
+    debouncedGetCoinList(); // Trigger the debounced call
+  }, [debouncedGetCoinList]);
 
   const coinArray = Array.isArray(coinList) 
     ? coinList 
@@ -24,11 +33,7 @@ const Dashboardcontent = () => {
 
   // Handle page change
   const handlePageChange = (direction) => {
-    setCurrentPage((prevPage) => {
-      const newPage = Math.max(prevPage + direction, 1);
-      dispatch(getCoinList(newPage));
-      return newPage;
-    });
+    setCurrentPage((prevPage) => Math.max(prevPage + direction, 1));
   };
 
   // Handle row click (to update chart)
@@ -42,33 +47,33 @@ const Dashboardcontent = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-black text-white ml-20 mt-20 mr-10 border border-white">
+    <div className="flex min-h-screen text-white ml-20 mt-12 mr-10 mb-20 rounded-3xl ">
       {/* Left Panel */}
-      <div className="w-1/2 p-4 overflow-y-auto h-[1000px]">
+      <div className="w-1/2 p-4 shadow-lg shadow-green-300 rounded-3xl border-t border-green-100">
         {/* Arrow buttons for pagination */}
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => handlePageChange(-1)}
-            className={`px-4 py-2 border rounded-full ${
+            className={`px-4 py-2 border rounded-full shadow-sm shadow-green-300 ${
               currentPage === 1
                 ? 'text-gray-500 border-gray-500 cursor-not-allowed'
-                : 'text-white border-white hover:bg-gray-700'
+                : 'text-white border-white hover:shadow-sm shadow-green-300'
             }`}
             disabled={currentPage === 1}
           >
             ◀
           </button>
-          <span className="text-gray-400">Page {currentPage}</span>
+          <span className="text-white">Page {currentPage}</span>
           <button
             onClick={() => handlePageChange(1)}
-            className="px-4 py-2 border rounded-full text-white border-white hover:bg-gray-700"
+            className="px-4 py-2 border rounded-full text-white border-white shadow-sm shadow-green-300"
           >
             ▶
           </button>
         </div>
 
         {/* Table */}
-        <table className="w-full border-collapse text-sm border rounded-lg">
+        <table className="w-full border-collapse text-sm bg-[black] rounded-3xl ">
           <thead>
             <tr className="text-green-400">
               <th className="p-3 text-left">COIN</th>
@@ -85,8 +90,8 @@ const Dashboardcontent = () => {
                 <tr
                   key={coin.id}
                   onClick={() => handleRowClick(coin.id)}
-                  className={`border-b border-gray-700 cursor-pointer ${
-                    selectedCoinId === coin.id ? 'bg-gray-800' : 'hover:bg-gray-700'
+                  className={` cursor-pointer ${
+                    selectedCoinId === coin.id ? '' : 'hover:bg-[]'
                   }`}
                 >
                   <td className="p-3">
@@ -124,38 +129,40 @@ const Dashboardcontent = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="w-1/2 p-4 border-l border-white">
+      <div className="w-1/2 p-4 ml-2 ">
         {/* Day Range Buttons */}
-        <div className="flex justify-center mb-4 space-x-2">
-          {[1, 30, 180, 360].map((days) => (
-            <button
-              key={days}
-              onClick={() => handleDayChange(days)}
-              className={`px-4 py-2 rounded-full border ${
-                selectedDays === days
-                  ? 'bg-green-500 text-black border-green-500'
-                  : 'text-white border-white hover:bg-gray-700'
-              }`}
-            >
-              {days === 1 ? '1D' : `${days}D`}
-            </button>
-          ))}
-        </div>
+        <div className="flex justify-center mb-4 space-x-3">
+  {[1, 30, 180, 360].map((days) => (
+    <button
+      key={days}
+      onClick={() => handleDayChange(days)}
+      className={`px-6 py-2 rounded-full border transition duration-300 ${
+        selectedDays === days
+          ? 'bg-green-500 text-black border-green-500 shadow-md shadow-green-500/50'
+          : 'text-white border-white hover:shadow-xl hover:shadow-green-500/50'
+      }`}
+    >
+      {days === 1 ? '1D' : `${days}D`}
+    </button>
+  ))}
+</div>
+
 
         {/* Chart */}
         <StockChart data={{ id: selectedCoinId, days: selectedDays }} />
 
         {/* Trade Button */}
         <button
-          className="px-4 py-2 bg-white text-black rounded hover:bg-gray-300"
-          onClick={() =>
-            navigate('/trade', {
-              state: { coin: coinArray.find((c) => c.id === selectedCoinId) },
-            })
-          }
-        >
-          Trade
-        </button>
+  className="px-4 py-2 border border-green-400 text-white rounded transition duration-300 transform hover:scale-105 mt-10 ml-73"
+  onClick={() =>
+    navigate('/trade', {
+      state: { coin: coinArray.find((c) => c.id === selectedCoinId) },
+    })
+  }
+>
+  Trade
+</button>
+
       </div>
     </div>
   );

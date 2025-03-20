@@ -72,7 +72,7 @@ const SecondNavbar = () => {
 
             {/* Dropdown Menu */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2.5 w-40 bg-black/80 rounded-md shadow-md border border-gray-700">
+              <div className="absolute right-0 mt-2.5 w-40 bg-black rounded-md shadow-md border border-white ">
                 <button
                   onClick={handleProfileClick}
                   className="block w-full text-left px-4 py-2 text-white hover:text-green-400 transition"

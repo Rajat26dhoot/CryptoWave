@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { register, login } from "../State/Auth/Action";
 import { useNavigate } from "react-router-dom";
+import '../Responsivecss/Login.css';
 
 export default function Login({ onClose }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -40,7 +41,7 @@ export default function Login({ onClose }) {
 
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="relative w-[800px] h-[500px] bg-black shadow-lg rounded-3xl overflow-hidden border border-gray-700">
+      <div className="relative w-full max-w-md sm:max-w-[800px] h-auto sm:h-[500px] bg-black shadow-lg rounded-3xl overflow-hidden border border-gray-700">
         {/* Green Panel */}
         <div
           className={`absolute top-0 h-full bg-green-400 bg-opacity-60 backdrop-blur-lg text-black flex flex-col items-center justify-center transition-all duration-1000 z-10 ${
