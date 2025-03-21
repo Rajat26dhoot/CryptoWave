@@ -8,7 +8,9 @@ const Withdraw = ({ isOpen, onClose, availableBalance }) => {
   const [selectedBank, setSelectedBank] = useState("");
   const dispatch = useDispatch();
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const handleWithdraw = () => {
     if (withdrawAmount && selectedBank) {

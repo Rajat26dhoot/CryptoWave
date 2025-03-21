@@ -36,7 +36,9 @@ const watchlistReducer = (state = initialState, action) => {
         const updatedItems = existInWatchlist(state.items, action.payload)
             ? state.items.filter((item) => item.id !== action.payload.id)
             : [...state.items, action.payload];
+            console.log("updatedItems", updatedItems);
         return { ...state, items: updatedItems, loading: false, error: null };
+      
     }
     
 

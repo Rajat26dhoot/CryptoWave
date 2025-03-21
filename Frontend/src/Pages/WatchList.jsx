@@ -7,7 +7,6 @@ const Watchlist = () => {
   const dispatch = useDispatch();
 
   
-
   useEffect(() => {
     const jwt = localStorage.getItem('jwt'); 
     if (jwt) {

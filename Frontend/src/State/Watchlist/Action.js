@@ -24,6 +24,10 @@ export const getUserWatchlist = (jwt) => async (dispatch) => {
 export const addItemToWatchlist = ({ coinId ,jwt}) => async (dispatch) => {
     dispatch({ type: types.ADD_ITEM_TO_WATCHLIST_REQUEST });
 
+    console.log("coinId:", coinId);
+console.log("jwt:", jwt);
+
+
     try {
         const response = await api.patch(
             `/api/watchlist/add/coin/${coinId}`,
