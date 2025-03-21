@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
-import HomeMiddle from '../components/HomeMiddle/HomeMiddle';
+import HomeMiddle from '../components/HomeMiddle/Homemiddle';
 import Login from './Login';
 
 const Home = () => {
