@@ -30,7 +30,7 @@ const Addmoney = ({ isOpen, onClose }) => {
       );
 
       // ✅ Clean up URL to avoid duplication issue
-      window.history.replaceState(null, "", "/wallet");
+      window.history.replaceState(null, "", `${window.location.origin}/wallet`);
     }
   }, [orderId, paymentId, dispatch, navigate]);
 
