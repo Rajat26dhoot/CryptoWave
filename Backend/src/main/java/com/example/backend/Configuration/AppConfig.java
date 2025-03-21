@@ -20,8 +20,7 @@ public class AppConfig {
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
             cfg.setAllowedOrigins(Arrays.asList(
-                    "http://localhost:5173",
-                    "http://localhost:3000"
+                    "https://crypto-wave-teal.vercel.app/"
             ));
             cfg.setAllowedMethods(Collections.singletonList("*"));
             cfg.setAllowCredentials(true);
