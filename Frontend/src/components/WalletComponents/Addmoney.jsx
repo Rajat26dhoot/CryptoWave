@@ -25,11 +25,10 @@ const Addmoney = ({ isOpen, onClose }) => {
           jwt: localStorage.getItem("jwt"),
           orderId,
           paymentId,
-          navigate: () => navigate("/wallet"), // Navigate to /wallet after success
+          navigate: () => navigate("/wallet"), 
         })
       );
 
-      // ✅ Clean up URL to avoid duplication issue
       window.history.replaceState(null, "", `${window.location.origin}/wallet`);
     }
   }, [orderId, paymentId, dispatch, navigate]);

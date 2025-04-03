@@ -158,7 +158,7 @@ const WalletContent = () => {
                   <p className="font-medium text-white">{tx.type}</p>
                   <span className="text-gray-500 text-sm">{tx.date}</span>
                 </div>
-                <span className="text-green-400">${tx.amount.toFixed(2)} USD</span>
+                <span className="text-green-400">${tx.amount.toFixed(2)}</span>
               </div>
             ))}
           </div>
