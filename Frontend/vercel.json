@@ -1,0 +1,6 @@
+{
+    "rewrites": [
+      { "source": "/wallet", "destination": "/index.html" }
+    ]
+}
+  

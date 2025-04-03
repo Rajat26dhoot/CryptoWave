@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,useSearchParams } from "react-router-dom";
 import { depositMoney, paymentHandler } from "../../State/Wallet/Action";
 
 function useQuery() {
@@ -14,9 +14,10 @@ const Addmoney = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const query = useQuery();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const orderId = query.get("order_id");
-  const paymentId = query.get("payment_id");
+  const orderId = searchParams.get("order_id");
+  const paymentId = searchParams.get("payment_id");
 
   useEffect(() => {
     if (orderId && paymentId) {
@@ -44,7 +45,9 @@ const Addmoney = ({ isOpen, onClose }) => {
     onClose(); // Close the modal after confirming
   };
 
-  if (!isOpen) return null;
+  if (!isOpen){ 
+    return null
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
