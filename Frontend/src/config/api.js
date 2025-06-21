@@ -1,6 +1,8 @@
 import axios from "axios";
 
-export const BASE_URL = 'https://cryptowaveupdate.onrender.com';
+// export const BASE_URL = 'https://cryptowaveupdate.onrender.com';
+export const BASE_URL = 'https://cryptowavebackend.onrender.com';
+
 
 
 const api=axios.create({
