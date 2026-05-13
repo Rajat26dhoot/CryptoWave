@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addPaymentDetails } from "../../State/Withdrawal/Action";
+import { Landmark, Save, X } from "lucide-react";
 
 const PaymentDetailForm = ({ onClose, onSave }) => {
   const [accountHolder, setAccountHolder] = useState("");
@@ -57,85 +58,87 @@ const PaymentDetailForm = ({ onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#111] text-white p-6 rounded-lg w-96">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Add Bank Detail</h2>
+    <div className="wallet-modal-backdrop">
+      <div className="wallet-modal-card wallet-bank-modal">
+        <button
+          type="button"
+          onClick={onClose}
+          className="wallet-modal-close"
+          aria-label="Close bank detail modal"
+        >
+          <X size={24} />
+        </button>
+
+        <div className="wallet-modal-header">
+          <span className="wallet-modal-icon">
+            <Landmark size={22} />
+          </span>
+          <div>
+            <p>Payout rail</p>
+            <h2>Add Bank Detail</h2>
+          </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Account Holder Name */}
-          <div>
-            <label className="block text-gray-400">Account Holder Name</label>
+        <form onSubmit={handleSubmit} className="wallet-form-grid">
+          <div className="wallet-field">
+            <label>Account Holder Name</label>
             <input
               type="text"
               value={accountHolder}
               onChange={(e) => setAccountHolder(e.target.value)}
               required
-              className="w-full bg-black text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-green-400"
             />
           </div>
 
-          {/* IFSC Code */}
-          <div>
-            <label className="block text-gray-400">IFSC Code</label>
+          <div className="wallet-field">
+            <label>IFSC Code</label>
             <input
               type="text"
               value={ifscCode}
               onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
               required
               maxLength={11}
-              className="w-full bg-black text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-green-400"
             />
           </div>
 
-          {/* Account Number */}
-          <div>
-            <label className="block text-gray-400">Account Number</label>
+          <div className="wallet-field">
+            <label>Account Number</label>
             <input
               type="text"
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               required
-              className="w-full bg-black text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-green-400"
             />
           </div>
 
-          {/* Confirm Account Number */}
-          <div>
-            <label className="block text-gray-400">Confirm Account Number</label>
+          <div className="wallet-field">
+            <label>Confirm Account Number</label>
             <input
               type="text"
               value={confirmAccountNumber}
               onChange={(e) => setConfirmAccountNumber(e.target.value)}
               required
-              className="w-full bg-black text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-green-400"
             />
           </div>
 
-          {/* Bank Name */}
-          <div>
-            <label className="block text-gray-400">Bank Name</label>
+          <div className="wallet-field">
+            <label>Bank Name</label>
             <input
               type="text"
               value={bankName}
               onChange={(e) => setBankName(e.target.value)}
               required
-              className="w-full bg-black text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-green-400"
             />
           </div>
 
-          {/* Submit and Cancel Buttons */}
-          <div className="flex gap-4">
+          <div className="wallet-modal-actions two-up">
             <button
               type="submit"
-              className={`w-full ${
+              className={`wallet-primary-button ${
                 accountHolder && ifscCode && accountNumber && confirmAccountNumber && bankName
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-gray-700 cursor-not-allowed"
-              } text-white px-4 py-2 rounded-lg font-semibold transition duration-300`}
+                  ? ""
+                  : "wallet-button-disabled"
+              }`}
               disabled={
                 !accountHolder ||
                 !ifscCode ||
@@ -144,12 +147,13 @@ const PaymentDetailForm = ({ onClose, onSave }) => {
                 !bankName
               }
             >
+              <Save size={18} />
               Save Bank Detail
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="w-full border border-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-300"
+              className="wallet-secondary-button"
             >
               Cancel
             </button>

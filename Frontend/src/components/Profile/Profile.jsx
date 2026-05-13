@@ -1,122 +1,174 @@
-import SecondNavbar from '../Navbar/SecondNavbar';
-import Footer from '../Footer/Footer';
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Fingerprint,
+  Globe2,
+  KeyRound,
+  LockKeyhole,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 
-const Profile = () => {
-
-  const auth = useSelector(state => state.auth);
-
-
-  return (
+const ProfileField = ({ icon: Icon, label, value }) => (
+  <div className="profile-field">
+    <span className="profile-field-icon">
+      <Icon size={18} />
+    </span>
     <div>
-      <div className="min-h-screen flex items-center justify-center p-4 mt-10">
-        <div className="max-w-6xl w-full grid grid-cols-[1.5fr_1fr] gap-6">
-          {/* Profile Card - Left Side (Wider) */}
-          <div className="bg-black/30 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl p-6 text-white">
-  <div className="flex items-center gap-4">
-    <img
-      src="https://static.agentestudio.com/uploads/author/photo/1/andrew_headshot.jpg"
-      alt="Profile"
-      className="w-24 h-24 rounded-full object-cover border border-white/10"
-    />
-    <div className="w-full space-y-3">
-      <div>
-        <label className="text-gray-400 text-sm">User Name:</label>
-        <div className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2">
-          {auth.user?.username || 'N/A'}
-        </div>
-      </div>
-      <div>
-        <label className="text-gray-400 text-sm">Mobile Number:</label>
-        <div className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2">
-          +1-856-569-999-1236
-        </div>
-      </div>
-      <div>
-        <label className="text-gray-400 text-sm">Email:</label>
-        <div className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2">
-          {auth.user?.email || 'N/A'}
-        </div>
-      </div>
-      <div>
-        <label className="text-gray-400 text-sm">City:</label>
-        <div className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2">
-          New York
-        </div>
-      </div>
-      <div>
-        <label className="text-gray-400 text-sm">Country:</label>
-        <div className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2">
-          United States
-        </div>
-      </div>
-      <div>
-        <label className="text-gray-400 text-sm">Date of Birth:</label>
-        <div className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2">
-          1990-12-12
-        </div>
-      </div>
+      <span>{label}</span>
+      <strong>{value || "N/A"}</strong>
     </div>
   </div>
-</div>
+);
 
+const Profile = () => {
+  const auth = useSelector((state) => state.auth);
+  const user = auth.user || {};
 
-          {/* Right Side - Contains Verification and Password Change */}
-          <div className="flex flex-col gap-4">
-            {/* 2 Step Verification */}
-            <div className="bg-black/30 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl p-4 text-white">
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold">2 Step Verification</h2>
+  const initials = (user.username || user.email || "CW")
+    .split(/[ @._-]/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
+  const profileFields = [
+    {
+      label: "User Name",
+      value: user.username,
+      icon: UserRound,
+    },
+    {
+      label: "Mobile Number",
+      value: "+1-856-569-999-1236",
+      icon: Phone,
+    },
+    {
+      label: "Email",
+      value: user.email,
+      icon: Mail,
+    },
+    {
+      label: "City",
+      value: "New York",
+      icon: MapPin,
+    },
+    {
+      label: "Country",
+      value: "United States",
+      icon: Globe2,
+    },
+    {
+      label: "Date of Birth",
+      value: "1990-12-12",
+      icon: CalendarDays,
+    },
+  ];
+
+  return (
+    <div className="profile-shell min-h-screen text-white">
+      <main className="profile-container">
+        <section className="profile-hero">
+          <div>
+            <p className="profile-kicker">Account Center</p>
+            <h1>Identity & Security</h1>
+            <span>Manage account details, verification posture, and credential controls.</span>
+          </div>
+          <div className="profile-live-badge">
+            <span className="status-pulse" />
+            Protected profile
+          </div>
+        </section>
+
+        <section className="profile-layout">
+          <article className="profile-card">
+            <div className="profile-identity-panel">
+              <div className="profile-avatar-ring">
+                <div className="profile-avatar">
+                  <span>{initials || "CW"}</span>
+                </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <button className="bg-gradient-to-r from-orange-400 to-pink-500 text-white px-3 py-1 rounded-full shadow-md hover:opacity-90">
-                    Disabled
-                  </button>
-                </div>
-                <div className="flex justify-between items-center">
-                  <button className="bg-gradient-to-r from-green-400 to-lime-500 text-white px-3 py-1 rounded-full shadow-md hover:opacity-90">
-                    Enabled
-                  </button>
-                </div>
+              <div>
+                <p className="profile-kicker">Primary account</p>
+                <h2>{user.username || "CryptoWave User"}</h2>
+                <span>{user.email || "No email available"}</span>
               </div>
             </div>
 
-            {/* Change Password */}
-            <div className="bg-black/30 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl p-4 text-white">
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold">Change Password</h2>
+            <div className="profile-field-grid">
+              {profileFields.map((field) => (
+                <ProfileField key={field.label} {...field} />
+              ))}
+            </div>
+          </article>
+
+          <aside className="profile-side-stack">
+            <section className="profile-security-card">
+              <div className="profile-card-heading">
+                <span className="profile-panel-icon">
+                  <ShieldCheck size={22} />
+                </span>
+                <div>
+                  <p className="profile-kicker">Security</p>
+                  <h2>2 Step Verification</h2>
+                </div>
               </div>
-              <form className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2 outline-none focus:border-green-400"
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="New Password"
-                  className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2 outline-none focus:border-green-400"
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  className="w-full bg-black/40 text-white border border-white/10 rounded-lg px-4 py-2 outline-none focus:border-green-400"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="mt-2 bg-gradient-to-r from-green-400 to-lime-500 text-black px-4 py-2 rounded-full w-full shadow-md hover:opacity-90"
-                >
+
+              <div className="profile-security-grid">
+                <button className="profile-status-pill status-disabled">
+                  <LockKeyhole size={17} />
+                  Disabled
+                </button>
+                <button className="profile-status-pill status-enabled">
+                  <CheckCircle2 size={17} />
+                  Enabled
+                </button>
+              </div>
+
+              <div className="profile-security-note">
+                <Fingerprint size={18} />
+                <span>Use 2 step verification to harden access for wallet and trading actions.</span>
+              </div>
+            </section>
+
+            <section className="profile-password-card">
+              <div className="profile-card-heading">
+                <span className="profile-panel-icon">
+                  <KeyRound size={22} />
+                </span>
+                <div>
+                  <p className="profile-kicker">Credentials</p>
+                  <h2>Change Password</h2>
+                </div>
+              </div>
+
+              <form className="profile-password-form">
+                <label>
+                  <span>Email</span>
+                  <input type="email" placeholder="Email" required />
+                </label>
+                <label>
+                  <span>New Password</span>
+                  <input type="password" placeholder="New Password" required />
+                </label>
+                <label>
+                  <span>Confirm Password</span>
+                  <input type="password" placeholder="Confirm Password" required />
+                </label>
+                <button type="submit" className="profile-primary-button">
+                  <Sparkles size={18} />
                   Change Password
                 </button>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
+            </section>
+          </aside>
+        </section>
+      </main>
     </div>
   );
 };

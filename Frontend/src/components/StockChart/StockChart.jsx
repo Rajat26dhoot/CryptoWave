@@ -1,31 +1,32 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { AgCharts } from "ag-charts-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMarketChart } from "../../State/Coin/Action";
+import { Expand, Minimize2, Radio } from "lucide-react";
 
 const StockChart = ({ data }) => {
   const [options, setOptions] = useState(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // ✅ Prevent double fetching
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const chartRef = useRef(null);
 
   const chartData = useSelector((state) => state.coin.marketChart.data);
-  const lastFetched = useRef({ id: null, days: null }); // ✅ Store last fetched values
+  const lastFetched = useRef({ id: null, days: null });
 
-  // ✅ Fetch only if data changes and not already fetched
   const fetchData = useCallback(() => {
     if (
       data.id &&
       data.days &&
       !isLoading &&
-      (lastFetched.current.id !== data.id || lastFetched.current.days !== data.days)
+      (lastFetched.current.id !== data.id ||
+        lastFetched.current.days !== data.days)
     ) {
       setIsLoading(true);
-      dispatch(fetchMarketChart({ coinId: data.id, days: data.days }))
-        .finally(() => setIsLoading(false));
+      dispatch(fetchMarketChart({ coinId: data.id, days: data.days })).finally(
+        () => setIsLoading(false)
+      );
 
-      // ✅ Update last fetched values
       lastFetched.current = { id: data.id, days: data.days };
     }
   }, [data.id, data.days, dispatch, isLoading]);
@@ -43,52 +44,110 @@ const StockChart = ({ data }) => {
 
       setOptions({
         data: formattedData,
+        padding: {
+          top: 18,
+          right: 24,
+          bottom: 12,
+          left: 12,
+        },
         series: [
           {
             type: "line",
             xKey: "date",
             yKey: "price",
-            stroke: "#00ff00",
-            marker: {
-              size: 5,
-              fill: "#00ff00",
+            title: data.name || "Price",
+            stroke: "#00e676",
+            strokeWidth: 3,
+            interpolation: {
+              type: "smooth",
             },
-            title: "Price",
+            marker: {
+              enabled: false,
+              size: 5,
+              fill: "#00e676",
+              stroke: "#07110b",
+              strokeWidth: 2,
+            },
+            highlightStyle: {
+              item: {
+                fill: "#f7d046",
+                stroke: "#0df28a",
+                strokeWidth: 3,
+              },
+              series: {
+                strokeWidth: 4,
+              },
+            },
+            tooltip: {
+              renderer: ({ datum }) => ({
+                title: new Intl.DateTimeFormat("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }).format(datum.date),
+                content: new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  maximumFractionDigits: datum.price > 100 ? 0 : 4,
+                }).format(datum.price),
+              }),
+            },
           },
         ],
         axes: [
           {
             type: "time",
             position: "bottom",
+            line: {
+              enabled: false,
+            },
+            tick: {
+              enabled: false,
+            },
             label: {
-              color: "#ccc",
+              color: "#8e9aab",
+              fontSize: 12,
             },
           },
           {
             type: "number",
-            position: "left",
+            position: "right",
+            line: {
+              enabled: false,
+            },
+            tick: {
+              enabled: false,
+            },
             label: {
-              color: "#ccc",
+              color: "#8e9aab",
+              fontSize: 12,
+              formatter: ({ value }) =>
+                new Intl.NumberFormat("en-US", {
+                  notation: "compact",
+                  maximumFractionDigits: 2,
+                }).format(value),
+            },
+            gridLine: {
+              style: [
+                {
+                  stroke: "rgba(255,255,255,0.09)",
+                  lineDash: [4, 8],
+                },
+              ],
             },
           },
         ],
         legend: {
-          enabled: true,
-          position: "bottom",
-          item: {
-            label: {
-              color: "#fff",
-            },
-          },
+          enabled: false,
         },
         background: {
-          fill: "#000",
+          fill: "transparent",
         },
       });
     }
-  }, [chartData, data.id]);
+  }, [chartData, data.id, data.name]);
 
-  // ✅ Toggle Full Screen
   const handleFullScreen = () => {
     if (!document.fullscreenElement) {
       chartRef.current?.requestFullscreen?.();
@@ -99,7 +158,6 @@ const StockChart = ({ data }) => {
     }
   };
 
-  // ✅ Close full screen on Escape key or exit
   useEffect(() => {
     const handleExitFullScreen = () => {
       if (!document.fullscreenElement) {
@@ -116,34 +174,36 @@ const StockChart = ({ data }) => {
   return (
     <div
       ref={chartRef}
-      className={`w-full ${isFullScreen ? "h-screen" : "h-[400px]"} 
-      bg-black text-white border border-green-400 rounded-lg p-4 relative flex flex-col`}
+      className={`stock-chart-surface ${isFullScreen ? "is-fullscreen" : ""}`}
       onDoubleClick={handleFullScreen}
     >
-      <h2 className="text-lg font-bold mb-4">Stock Chart</h2>
+      <div className="chart-meta-row">
+        <div className="live-chip">
+          <Radio size={14} />
+          Streaming
+        </div>
+        <button
+          onClick={handleFullScreen}
+          className="chart-action-button"
+          aria-label={isFullScreen ? "Exit full screen" : "Open full screen"}
+          title={isFullScreen ? "Exit full screen" : "Open full screen"}
+        >
+          {isFullScreen ? <Minimize2 size={17} /> : <Expand size={17} />}
+        </button>
+      </div>
 
-      {/* ✅ Chart Container */}
-      <div className="flex-grow w-full h-full">
+      <div className="chart-canvas">
         {options ? (
-          <AgCharts options={options} className="w-full h-full" />
+          <AgCharts options={options} className="h-full w-full" />
         ) : isLoading ? (
-          <div className="text-gray-400 flex items-center justify-center h-full">
+          <div className="chart-state">
+            <span className="loading-ring" />
             Loading chart data...
           </div>
         ) : (
-          <div className="text-gray-400 flex items-center justify-center h-full">
-            No data available.
-          </div>
+          <div className="chart-state">No data available.</div>
         )}
       </div>
-
-      {/* ✅ Full-Screen Button */}
-      <button
-        onClick={handleFullScreen}
-        className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition z-10"
-      >
-        {isFullScreen ? "Exit Full Screen" : "Full Screen"}
-      </button>
     </div>
   );
 };

@@ -3,6 +3,44 @@ import StockChart from '../StockChart/StockChart';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCoinList } from '../../State/Coin/Action';
 import { useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  ChevronRight,
+  Gem,
+  Layers3,
+  LineChart,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Wallet,
+} from 'lucide-react';
+
+const formatCompact = (value, options = {}) => {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '--';
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 2,
+    ...options,
+  }).format(value);
+};
+
+const formatCurrency = (value) => {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '--';
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: value > 100 ? 0 : 4,
+  }).format(value);
+};
 
 const Dashboardcontent = () => {
   const dispatch = useDispatch();
@@ -14,157 +52,282 @@ const Dashboardcontent = () => {
 
   const { coinList = [] } = useSelector((state) => state.coin);
 
-  // ✅ Debounce function to prevent excessive API calls
   const debouncedGetCoinList = useCallback(() => {
     const handler = setTimeout(() => {
       dispatch(getCoinList(currentPage));
-    }, 500); // 500ms delay (adjust as needed)
+    }, 500);
 
     return () => clearTimeout(handler);
   }, [currentPage, dispatch]);
 
   useEffect(() => {
-    debouncedGetCoinList(); // Trigger the debounced call
+    debouncedGetCoinList();
   }, [debouncedGetCoinList]);
 
-  const coinArray = Array.isArray(coinList) 
-    ? coinList 
+  const coinArray = Array.isArray(coinList)
+    ? coinList
     : Object.values(coinList || {});
 
-  // Handle page change
+  const selectedCoin =
+    coinArray.find((coin) => coin.id === selectedCoinId) || coinArray[0];
+
+  const totalVolume = coinArray.reduce(
+    (sum, coin) => sum + (Number(coin.total_volume) || 0),
+    0
+  );
+
+  const totalMarketCap = coinArray.reduce(
+    (sum, coin) => sum + (Number(coin.market_cap) || 0),
+    0
+  );
+
+  const gainers = coinArray.filter(
+    (coin) => Number(coin.price_change_percentage_24h) >= 0
+  ).length;
+
+  const statCards = [
+    {
+      label: 'Total market cap',
+      value: `$${formatCompact(totalMarketCap)}`,
+      icon: Layers3,
+      accent: 'emerald',
+    },
+    {
+      label: '24h volume',
+      value: `$${formatCompact(totalVolume)}`,
+      icon: BarChart3,
+      accent: 'cyan',
+    },
+    {
+      label: 'Advancing assets',
+      value: `${gainers}/${coinArray.length || 0}`,
+      icon: Sparkles,
+      accent: 'gold',
+    },
+  ];
+
   const handlePageChange = (direction) => {
     setCurrentPage((prevPage) => Math.max(prevPage + direction, 1));
   };
 
-  // Handle row click (to update chart)
   const handleRowClick = (id) => {
     setSelectedCoinId(id);
   };
 
-  // Handle day range change
   const handleDayChange = (days) => {
     setSelectedDays(days);
   };
 
   return (
-    <div className="flex min-h-screen text-white ml-20 mt-12 mr-10 mb-20 rounded-3xl ">
-      {/* Left Panel */}
-      <div className="w-1/2 p-4 shadow-lg shadow-green-300 rounded-3xl border-t border-green-100">
-        {/* Arrow buttons for pagination */}
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => handlePageChange(-1)}
-            className={`px-4 py-2 border rounded-full shadow-sm shadow-green-300 ${
-              currentPage === 1
-                ? 'text-gray-500 border-gray-500 cursor-not-allowed'
-                : 'text-white border-white hover:shadow-sm shadow-green-300'
-            }`}
-            disabled={currentPage === 1}
-          >
-            ◀
-          </button>
-          <span className="text-white">Page {currentPage}</span>
-          <button
-            onClick={() => handlePageChange(1)}
-            className="px-4 py-2 border rounded-full text-white border-white shadow-sm shadow-green-300"
-          >
-            ▶
-          </button>
+    <main className="mx-auto grid w-full max-w-[1720px] grid-cols-1 gap-5 px-4 pb-16 pt-7 text-white sm:px-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(420px,0.92fr)] lg:px-8">
+      <section className="glass-panel market-panel">
+        <div className="panel-toolbar">
+          <div>
+            <p className="section-kicker">Markets</p>
+            <h2 className="section-title">Top Tokens</h2>
+          </div>
+          <div className="page-controls">
+            <button
+              onClick={() => handlePageChange(-1)}
+              className="icon-button"
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+              title="Previous page"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <span>Page {currentPage}</span>
+            <button
+              onClick={() => handlePageChange(1)}
+              className="icon-button"
+              aria-label="Next page"
+              title="Next page"
+            >
+              <ArrowRight size={18} />
+            </button>
+          </div>
         </div>
 
-        {/* Table */}
-        <table className="w-full border-collapse text-sm bg-[black] rounded-3xl ">
-          <thead>
-            <tr className="text-green-400">
-              <th className="p-3 text-left">COIN</th>
-              <th className="p-3 text-left">SYMBOL</th>
-              <th className="p-3 text-left">VOLUME</th>
-              <th className="p-3 text-left">MARKET CAP</th>
-              <th className="p-3 text-left">24H</th>
-              <th className="p-3 text-left">PRICE</th>
-            </tr>
-          </thead>
-          <tbody>
-            {coinArray.length > 0 ? (
-              coinArray.map((coin) => (
-                <tr
-                  key={coin.id}
-                  onClick={() => handleRowClick(coin.id)}
-                  className={` cursor-pointer ${
-                    selectedCoinId === coin.id ? '' : 'hover:bg-[]'
-                  }`}
-                >
-                  <td className="p-3">
-                    <img
-                      src={coin.image}
-                      className="w-6 h-6 inline-block mr-2"
-                      alt={coin.name}
-                    />
-                    {coin.name}
-                  </td>
-                  <td className="p-3">{coin.symbol.toUpperCase()}</td>
-                  <td className="p-3">{coin.total_volume?.toLocaleString()}</td>
-                  <td className="p-3">{coin.market_cap?.toLocaleString()}</td>
-                  <td
-                    className={`p-3 ${
-                      coin.price_change_percentage_24h < 0
-                        ? 'text-red-500'
-                        : 'text-green-400'
-                    }`}
-                  >
-                    {coin.price_change_percentage_24h?.toFixed(2)}%
-                  </td>
-                  <td className="p-3">${coin.current_price?.toLocaleString()}</td>
-                </tr>
-              ))
-            ) : (
+        <div className="market-search">
+          <Search size={17} />
+          <span>Search markets, symbols, pairs</span>
+          <kbd>/</kbd>
+        </div>
+
+        <div className="stat-grid">
+          {statCards.map(({ label, value, icon: Icon, accent }) => (
+            <div className={`stat-card stat-card-${accent}`} key={label}>
+              <div className="stat-icon">
+                <Icon size={18} />
+              </div>
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="market-table-wrap">
+          <table className="market-table">
+            <thead>
               <tr>
-                <td colSpan="6" className="p-4 text-center text-gray-500">
-                  No coins available
-                </td>
+                <th>Asset</th>
+                <th>Symbol</th>
+                <th>Volume</th>
+                <th>Market Cap</th>
+                <th>24h</th>
+                <th>Price</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {coinArray.length > 0 ? (
+                coinArray.map((coin) => {
+                  const isPositive =
+                    Number(coin.price_change_percentage_24h) >= 0;
+                  const isSelected = selectedCoinId === coin.id;
 
-      {/* Right Panel */}
-      <div className="w-1/2 p-4 ml-2 ">
-        {/* Day Range Buttons */}
-        <div className="flex justify-center mb-4 space-x-3">
-  {[1, 30, 180, 360].map((days) => (
-    <button
-      key={days}
-      onClick={() => handleDayChange(days)}
-      className={`px-6 py-2 rounded-full border transition duration-300 ${
-        selectedDays === days
-          ? 'bg-green-500 text-black border-green-500 shadow-md shadow-green-500/50'
-          : 'text-white border-white hover:shadow-xl hover:shadow-green-500/50'
-      }`}
-    >
-      {days === 1 ? '1D' : `${days}D`}
-    </button>
-  ))}
-</div>
+                  return (
+                    <tr
+                      key={coin.id}
+                      onClick={() => handleRowClick(coin.id)}
+                      className={isSelected ? 'selected-row' : ''}
+                    >
+                      <td>
+                        <div className="asset-cell">
+                          <img src={coin.image} alt={coin.name} />
+                          <div>
+                            <strong>{coin.name}</strong>
+                            <span>USD spot</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="symbol-pill">
+                          {coin.symbol?.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>{formatCompact(coin.total_volume)}</td>
+                      <td>{formatCompact(coin.market_cap)}</td>
+                      <td>
+                        <span className={isPositive ? 'change-up' : 'change-down'}>
+                          {isPositive ? '+' : ''}
+                          {coin.price_change_percentage_24h?.toFixed(2) ?? '--'}%
+                        </span>
+                      </td>
+                      <td className="price-cell">
+                        {formatCurrency(coin.current_price)}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" className="empty-state">
+                    Loading market data...
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
+      <aside className="trade-stack">
+        <section className="glass-panel selected-asset-panel">
+          <div className="selected-asset-top">
+            <div className="asset-cell">
+              {selectedCoin?.image ? (
+                <img src={selectedCoin.image} alt={selectedCoin.name} />
+              ) : (
+                <span className="coin-fallback">
+                  <Gem size={18} />
+                </span>
+              )}
+              <div>
+                <span className="section-kicker">Selected Pair</span>
+                <strong>{selectedCoin?.name || 'Bitcoin'} / USD</strong>
+              </div>
+            </div>
+            <span
+              className={
+                Number(selectedCoin?.price_change_percentage_24h) >= 0
+                  ? 'change-up'
+                  : 'change-down'
+              }
+            >
+              {Number(selectedCoin?.price_change_percentage_24h) >= 0 ? '+' : ''}
+              {selectedCoin?.price_change_percentage_24h?.toFixed(2) ?? '--'}%
+            </span>
+          </div>
 
-        {/* Chart */}
-        <StockChart data={{ id: selectedCoinId, days: selectedDays }} />
+          <div className="selected-price-row">
+            <div>
+              <span>Last price</span>
+              <strong>{formatCurrency(selectedCoin?.current_price)}</strong>
+            </div>
+            <button
+              className="primary-trade-button"
+              onClick={() =>
+                navigate('/trade', {
+                  state: { coin: selectedCoin },
+                })
+              }
+            >
+              <Wallet size={18} />
+              Trade
+              <ArrowUpRight size={17} />
+            </button>
+          </div>
+        </section>
 
-        {/* Trade Button */}
-        <button
-  className="px-4 py-2 border border-green-400 text-white rounded transition duration-300 transform hover:scale-105 mt-10 ml-73"
-  onClick={() =>
-    navigate('/trade', {
-      state: { coin: coinArray.find((c) => c.id === selectedCoinId) },
-    })
-  }
->
-  Trade
-</button>
+        <section className="glass-panel chart-panel">
+          <div className="range-row">
+            <div>
+              <p className="section-kicker">Price Action</p>
+              <h2 className="section-title">Live Market Chart</h2>
+            </div>
+            <div className="range-tabs">
+              {[1, 30, 180, 360].map((days) => (
+                <button
+                  key={days}
+                  onClick={() => handleDayChange(days)}
+                  className={selectedDays === days ? 'active' : ''}
+                >
+                  {days === 1 ? '1D' : `${days}D`}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      </div>
-    </div>
+          <StockChart
+            data={{
+              id: selectedCoin?.id || selectedCoinId,
+              days: selectedDays,
+              name: selectedCoin?.name,
+              price: selectedCoin?.current_price,
+            }}
+          />
+        </section>
+
+        <section className="glass-panel execution-panel">
+          <div className="execution-item">
+            <ShieldCheck size={18} />
+            <div>
+              <strong>Protected execution</strong>
+              <span>Risk checks and authenticated wallet routing.</span>
+            </div>
+            <ChevronRight size={18} />
+          </div>
+          <div className="execution-item">
+            <LineChart size={18} />
+            <div>
+              <strong>Deep liquidity</strong>
+              <span>Aggregated volume snapshot from the market list.</span>
+            </div>
+            <ChevronRight size={18} />
+          </div>
+        </section>
+      </aside>
+    </main>
   );
 };
 

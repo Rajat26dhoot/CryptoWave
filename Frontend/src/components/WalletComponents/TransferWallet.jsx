@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { Send, ShieldCheck, Shuffle, X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { transferMoney } from "../../State/Wallet/Action";
 
@@ -34,57 +34,61 @@ const TransferWallet = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#111] text-white p-6 rounded-xl shadow-lg w-[500px] relative">
-        {/* Close Button */}
+    <div className="wallet-modal-backdrop">
+      <div className="wallet-modal-card">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-400 hover:text-white"
+          className="wallet-modal-close"
+          aria-label="Close transfer modal"
         >
           <X size={24} />
         </button>
 
-        {/* Header */}
-        <h2 className="text-xl font-semibold mb-6 text-center">
-          Transfer To Other Wallet
-        </h2>
+        <div className="wallet-modal-header">
+          <span className="wallet-modal-icon">
+            <Shuffle size={22} />
+          </span>
+          <div>
+            <p>Peer transfer</p>
+            <h2>Transfer To Other Wallet</h2>
+          </div>
+        </div>
 
-        {/* Enter Amount */}
-        <div className="mb-4">
-          <label className="block text-gray-400 mb-2">Enter Amount</label>
+        <div className="wallet-field">
+          <label>Enter Amount</label>
           <input
             type="number"
             placeholder="$0.00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full bg-black border border-gray-700 rounded-lg p-3 text-lg focus:outline-none focus:border-green-400"
           />
         </div>
 
-        {/* Enter Wallet ID */}
-        <div className="mb-4">
-          <label className="block text-gray-400 mb-2">Enter Wallet ID</label>
+        <div className="wallet-field">
+          <label>Enter Wallet ID</label>
           <input
             type="text"
             placeholder="Transfer to which ID"
             value={walletId}
             onChange={(e) => setWalletId(e.target.value)}
-            className="w-full bg-black border border-gray-700 rounded-lg p-3 text-lg focus:outline-none focus:border-green-400"
           />
         </div>
 
        
-        {/* Send Button */}
-        <div>
+        <div className="wallet-modal-note">
+          <ShieldCheck size={17} />
+          <span>Wallet IDs are validated before the transfer is sent.</span>
+        </div>
+
+        <div className="wallet-modal-actions">
           <button
-            className={`w-full ${
-              amount && walletId
-                ? "bg-green-500 hover:bg-green-600 border border-black"
-                : "bg-gray-800 border border-gray-700 cursor-not-allowed"
-            } text-white py-3 rounded-lg font-semibold transition duration-300`}
+            className={`wallet-primary-button ${
+              amount && walletId ? "" : "wallet-button-disabled"
+            }`}
             onClick={handleTransfer}
             disabled={!amount || !walletId}
           >
+            <Send size={18} />
             Send
           </button>
         </div>

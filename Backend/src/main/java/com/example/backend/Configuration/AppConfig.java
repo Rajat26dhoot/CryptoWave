@@ -19,8 +19,9 @@ public class AppConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
-            cfg.setAllowedOrigins(Arrays.asList(
-                    "https://crypto-wave-teal.vercel.app/"
+            cfg.setAllowedOrigins(Arrays.asList( 
+                "http://localhost:5173",
+                 "https://crypto-wave-teal.vercel.app"
             ));
             cfg.setAllowedMethods(Collections.singletonList("*"));
             cfg.setAllowCredentials(true);

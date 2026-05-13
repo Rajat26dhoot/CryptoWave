@@ -2,14 +2,19 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPaymentDetails } from "../../State/Withdrawal/Action";
 import PaymentDetailForm from "./PaymentDetailForm";
+import { CreditCard, Landmark, Plus, ShieldCheck } from "lucide-react";
+
+const DetailRow = ({ label, value }) => (
+  <div className="bank-detail-row">
+    <span>{label}</span>
+    <strong>{value || "--"}</strong>
+  </div>
+);
 
 const PaymentDetail = () => {
-  const { PaymentDetails: paymentDetails } = useSelector((store) => store.withdrawal);
-
-
-  console.log("hii", paymentDetails); // ✅ Fixed
-
-
+  const { PaymentDetails: paymentDetails } = useSelector(
+    (store) => store.withdrawal
+  );
   const dispatch = useDispatch();
 
   const [showModal, setShowModal] = useState(false);
@@ -21,55 +26,69 @@ const PaymentDetail = () => {
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-  const handleSavePayment = (details) => {
-    // Optionally, dispatch an action to update the Redux store if needed
+  const handleSavePayment = () => {
     handleCloseModal();
   };
 
+  const hasPaymentDetails =
+    paymentDetails && Object.keys(paymentDetails).length > 0;
+
   return (
-    <div className="min-h-screen text-white bg-black">
-      <div className="max-w-2xl mx-auto p-6 mt-20">
-        {/* Show Payment Details Card only if data exists */}
-        {paymentDetails && Object.keys(paymentDetails).length > 0 ? (
-          <div className="p-6 rounded-xl shadow-lg border border-green-400 mb-6">
-            <h3 className="text-xl font-semibold text-green-400 mb-4">
-              Saved Payment Details
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Account Holder:</span>
-                <span className="font-medium">
-                  {paymentDetails.accountHolderName}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">IFSC Code:</span>
-                <span className="font-medium">{paymentDetails.ifsc}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Account Number:</span>
-                <span className="font-medium">
-                  {paymentDetails.accountNumber}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Bank Name:</span>
-                <span className="font-medium">{paymentDetails.bankName}</span>
+    <div className="wallet-shell min-h-screen text-white">
+      <main className="wallet-container wallet-payment-container">
+        <section className="wallet-hero">
+          <div>
+            <p className="wallet-kicker">Payout Settings</p>
+            <h1>Bank Details</h1>
+            <span>Manage the account used for withdrawals and settlements.</span>
+          </div>
+        </section>
+
+        {hasPaymentDetails ? (
+          <section className="bank-detail-card">
+            <div className="bank-detail-card-top">
+              <span className="wallet-modal-icon">
+                <Landmark size={24} />
+              </span>
+              <div>
+                <p className="wallet-kicker">Verified rail</p>
+                <h2>Saved Payment Details</h2>
               </div>
             </div>
-          </div>
-        ) : (
-          // Show Add Payment Detail button only if no payment details exist
-          <button
-            onClick={handleOpenModal}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-shadow shadow-md hover:shadow-lg"
-          >
-            Add Payment Detail
-          </button>
-        )}
-      </div>
 
-      {/* Payment Detail Form Modal */}
+            <div className="bank-detail-grid">
+              <DetailRow
+                label="Account Holder"
+                value={paymentDetails.accountHolderName}
+              />
+              <DetailRow label="IFSC Code" value={paymentDetails.ifsc} />
+              <DetailRow
+                label="Account Number"
+                value={paymentDetails.accountNumber}
+              />
+              <DetailRow label="Bank Name" value={paymentDetails.bankName} />
+            </div>
+
+            <div className="wallet-modal-note bank-note">
+              <ShieldCheck size={17} />
+              <span>Bank information is used only for authenticated withdrawals.</span>
+            </div>
+          </section>
+        ) : (
+          <section className="bank-empty-card">
+            <span className="wallet-modal-icon">
+              <CreditCard size={24} />
+            </span>
+            <h2>No payout account added</h2>
+            <p>Add a bank account to enable withdrawal requests from your wallet.</p>
+            <button onClick={handleOpenModal} className="wallet-primary-button">
+              <Plus size={18} />
+              Add Payment Detail
+            </button>
+          </section>
+        )}
+      </main>
+
       {showModal && (
         <PaymentDetailForm
           onClose={handleCloseModal}

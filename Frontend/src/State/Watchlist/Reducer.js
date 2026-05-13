@@ -14,15 +14,15 @@ const initialState = {
 const watchlistReducer = (state = initialState, action) => {
   switch (action.type) {
     // Get Watchlist Request
-    case types.GET_WATCHLIST_REQUEST:
+    case types.GET_USER_WATCHLIST_REQUEST:
       return { ...state, loading: true, error: null };
 
     // Get Watchlist Success
-    case types.GET_WATCHLIST_SUCCESS:
+    case types.GET_USER_WATCHLIST_SUCCESS:
       return {
         ...state,
         watchlist: action.payload,
-        items: action.payload.coins,
+        items: action.payload?.coins || [],
         loading: false,
         error: null,
       };
@@ -42,7 +42,7 @@ const watchlistReducer = (state = initialState, action) => {
     }
     
 
-    case types.GET_WATCHLIST_FAILURE:
+    case types.GET_USER_WATCHLIST_FAILURE:
       return { ...state, loading: false, error: action.payload };
 
     default:
