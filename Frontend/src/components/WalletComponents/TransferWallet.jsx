@@ -6,7 +6,7 @@ import { transferMoney } from "../../State/Wallet/Action";
 const TransferWallet = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState("");
   const [walletId, setWalletId] = useState("");
-  const [purpose, setPurpose] = useState("");
+  const [purpose] = useState("");
   const dispatch = useDispatch();
 
   if (!isOpen) return null;
@@ -27,7 +27,7 @@ const TransferWallet = ({ isOpen, onClose }) => {
       );
       
 
-      console.log(`Transferring $${amount} to wallet ID: ${walletId}`);
+      console.log(`Transferring ₹${amount} to wallet ID: ${walletId}`);
       console.log(`Purpose: ${purpose}`);
       onClose();
     }
@@ -58,7 +58,7 @@ const TransferWallet = ({ isOpen, onClose }) => {
           <label>Enter Amount</label>
           <input
             type="number"
-            placeholder="$0.00"
+            placeholder="₹0.00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />

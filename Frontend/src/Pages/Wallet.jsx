@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowDownCircle,
@@ -21,38 +21,47 @@ import {
 import Addmoney from "../components/WalletComponents/Addmoney";
 import Withdraw from "../components/WalletComponents/Withdraw";
 import TransferWallet from "../components/WalletComponents/TransferWallet";
+import { formatCurrency } from "../utils/currency";
 
 const WalletContent = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
+  const processedPaymentRef = useRef(null);
 
-  const { userWallet } = useSelector((state) => state.wallet);
+  const { userWallet, transaction, loading } = useSelector((state) => state.wallet);
 
   const [balance, setBalance] = useState(userWallet?.balance || 0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
 
+  const handleFetchUserWallet = useCallback(() => {
+    dispatch(getUserWallet(localStorage.getItem("jwt")));
+  }, [dispatch]);
+
+  const handleFetchWalletTransactions = useCallback(() => {
+    dispatch(getWalletTransaction(localStorage.getItem("jwt")));
+  }, [dispatch]);
+
   useEffect(() => {
     handleFetchUserWallet();
+    handleFetchWalletTransactions();
 
     const orderId = searchParams.get("order_id");
     const paymentId = searchParams.get("payment_id");
+    const paymentKey = orderId && paymentId ? `${orderId}:${paymentId}` : null;
 
-    if (orderId && paymentId) {
+    if (paymentKey && processedPaymentRef.current !== paymentKey) {
+      processedPaymentRef.current = paymentKey;
       const jwt = localStorage.getItem("jwt");
       dispatch(depositMoney({ jwt, orderId, paymentId, navigate }));
     }
-  }, [dispatch, searchParams, navigate]);
+  }, [dispatch, handleFetchUserWallet, handleFetchWalletTransactions, searchParams, navigate]);
 
   useEffect(() => {
     setBalance(userWallet?.balance || 0);
   }, [userWallet?.balance]);
-
-  const handleFetchUserWallet = () => {
-    dispatch(getUserWallet(localStorage.getItem("jwt")));
-  };
 
   const handleCopy = () => {
     if (userWallet?.id) {
@@ -65,14 +74,31 @@ const WalletContent = () => {
     navigate("/payment-detail");
   };
 
-  const handleFetchWalletTransactions = () => {
-    dispatch(getWalletTransaction(localStorage.getItem("jwt")));
+  const transactions = Array.isArray(transaction) ? transaction : [];
+
+  const formatTransactionType = (type = "") =>
+    type
+      .toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+  const formatTransactionDate = (date) => {
+    if (!date) return "Today";
+
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
-  const transactions = [
-    { type: "WITHDRAWAL", date: "2024-06-02", amount: 89, status: "Settled" },
-    { type: "BUY tether", date: "2024-06-01", amount: 99, status: "Completed" },
-  ];
+  const formatTransactionAmount = (amount = 0) => {
+    const numericAmount = Number(amount) || 0;
+    const sign = numericAmount > 0 ? "+" : numericAmount < 0 ? "-" : "";
+
+    return `${sign}${formatCurrency(Math.abs(numericAmount))}`;
+  };
 
   const walletActions = [
     {
@@ -134,7 +160,7 @@ const WalletContent = () => {
 
             <div className="wallet-balance-block">
               <span>Total balance</span>
-              <strong>${balance.toFixed(2)}</strong>
+              <strong>{formatCurrency(balance)}</strong>
               <div className="wallet-id-chip">
                 <button onClick={handleCopy} aria-label="Copy wallet ID" title="Copy wallet ID">
                   <Copy size={15} />
@@ -145,7 +171,7 @@ const WalletContent = () => {
 
             <div className="wallet-card-footer">
               <div>
-                <span>USD wallet</span>
+                <span>INR wallet</span>
                 <strong>Primary</strong>
               </div>
               <div>
@@ -204,22 +230,34 @@ const WalletContent = () => {
           </div>
 
           <div className="wallet-history-list">
-            {transactions.map((tx, index) => (
-              <article className="wallet-history-item" key={index}>
-                <div className="wallet-history-left">
-                  <div className="wallet-history-icon">
-                    <Landmark size={18} />
+            {loading && transactions.length === 0 ? (
+              <div className="wallet-history-empty">Loading wallet transactions...</div>
+            ) : transactions.length === 0 ? (
+              <div className="wallet-history-empty">No wallet transactions yet.</div>
+            ) : (
+              transactions.map((tx) => (
+                <article className="wallet-history-item" key={tx.id}>
+                  <div className="wallet-history-left">
+                    <div className="wallet-history-icon">
+                      <Landmark size={18} />
+                    </div>
+                    <div>
+                      <strong>{formatTransactionType(tx.type)}</strong>
+                      <span>
+                        {formatTransactionDate(tx.date)} - {tx.purpose || "Wallet activity"}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <strong>{tx.type}</strong>
-                    <span>{tx.date} · {tx.status}</span>
-                  </div>
-                </div>
-                <strong className="wallet-history-amount">
-                  ${tx.amount.toFixed(2)}
-                </strong>
-              </article>
-            ))}
+                  <strong
+                    className={`wallet-history-amount ${
+                      Number(tx.amount) < 0 ? "wallet-history-amount-negative" : ""
+                    }`}
+                  >
+                    {formatTransactionAmount(tx.amount)}
+                  </strong>
+                </article>
+              ))
+            )}
           </div>
         </section>
       </main>

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { addItemToWatchlist } from '../State/Watchlist/Action'; // Import the action
 import StockChart from '../components/StockChart/StockChart';
 import TradingForm from '../components/TradingForm/TradingForm';
+import { formatCurrency } from '../utils/currency';
 
 const Trade = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,65 +24,60 @@ const Trade = () => {
     };
 
     return (
-        <div className="bg-black text-white min-h-screen">
-            {/* Header Section */}
-            <div className="flex items-center justify-between p-4 pt-30">
-                <div className="flex items-center gap-2">
-                    {/* Display coin details */}
-                    <div className="text-xl font-bold">{coin?.name}</div>
-                    <span className="text-gray-400">{coin?.symbol?.toUpperCase()}</span>
-                    <span className="text-green-400">
-                        ${coin?.current_price?.toLocaleString()}
-                    </span>
-                    <span
-                        className={`${
-                            coin?.price_change_percentage_24h < 0
-                                ? 'text-red-500'
-                                : 'text-green-400'
-                        }`}
-                    >
-                        {coin?.price_change_percentage_24h?.toFixed(2)}%
-                    </span>
-                </div>
+        <div className="trade-page min-h-screen text-white">
+            <main className="trade-page-container">
+                <section className="trade-header-panel">
+                    <div className="trade-coin-meta">
+                        <div className="trade-coin-name">{coin?.name || "Select coin"}</div>
+                        <span className="trade-symbol">{coin?.symbol?.toUpperCase() || "SPOT"}</span>
+                        <span className="trade-price">
+                            {formatCurrency(coin?.current_price)}
+                        </span>
+                        <span
+                            className={
+                                coin?.price_change_percentage_24h < 0
+                                    ? 'trade-change trade-change-down'
+                                    : 'trade-change trade-change-up'
+                            }
+                        >
+                            {coin?.price_change_percentage_24h === undefined
+                                ? "--"
+                                : `${coin.price_change_percentage_24h > 0 ? "+" : ""}${coin.price_change_percentage_24h.toFixed(2)}%`}
+                        </span>
+                    </div>
 
-                {/* Buttons */}
-                <div className="flex gap-4">
-                    <button 
-                        className="px-4 py-2 border border-gray-600 rounded hover:bg-gray-800"
-                        onClick={handleAddToWatchlist}
-                    >
-                        Watchlist
-                    </button>
-                    <button 
-                        className="px-4 py-2 bg-white text-black rounded hover:bg-gray-300"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        Trade
-                    </button>
-                </div>
-            </div>
+                    <div className="trade-actions">
+                        <button
+                            className="trade-secondary-button"
+                            onClick={handleAddToWatchlist}
+                        >
+                            Watchlist
+                        </button>
+                        <button
+                            className="trade-primary-button"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Trade
+                        </button>
+                    </div>
+                </section>
 
-            {/* Day Range Buttons */}
-            <div className="flex justify-center mb-4 space-x-2">
-                {[1, 30, 180, 360].map((value) => (
-                    <button
-                        key={value}
-                        onClick={() => setDays(value)}
-                        className={`px-4 py-2 rounded-full border ${
-                            days === value
-                                ? 'bg-green-500 text-black border-green-500'
-                                : 'text-white border-white hover:bg-gray-700'
-                        }`}
-                    >
-                        {value === 1 ? '1D' : `${value}D`}
-                    </button>
-                ))}
-            </div>
+                <section className="trade-range-row">
+                    {[1, 30, 180, 360].map((value) => (
+                        <button
+                            key={value}
+                            onClick={() => setDays(value)}
+                            className={days === value ? 'active' : ''}
+                        >
+                            {value === 1 ? '1D' : `${value}D`}
+                        </button>
+                    ))}
+                </section>
 
-            {/* Chart Section */}
-            <div className="p-4">
-                <StockChart data={{ id: coin?.id, days }} />
-            </div>
+                <section className="trade-chart-wrap">
+                    <StockChart data={{ id: coin?.id, days, name: coin?.name }} />
+                </section>
+            </main>
 
             {/* Modal */}
             <TradingForm 

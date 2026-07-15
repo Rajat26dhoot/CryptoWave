@@ -35,6 +35,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${razorpay.api.secret}")
     private String apiSecretKey;
 
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
 
     @Override
     public PaymentOrder createOrder(User user, Long amount, PaymentMethod paymentMethod) {
@@ -116,7 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
             RazorpayClient razorpay=new RazorpayClient(apiKey,apiSecretKey);
 
             JSONObject paymentLinkRequest=new JSONObject();
-            paymentLinkRequest.put("amount",amount);
+            paymentLinkRequest.put("amount",Amount);
             paymentLinkRequest.put("currency","INR");
 
             JSONObject customer=new JSONObject();
@@ -131,7 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             paymentLinkRequest.put("reminder_enable",true);
 
-            paymentLinkRequest.put("callback_url","https://localhost:5173/wallet?order_id="+orderId);
+            paymentLinkRequest.put("callback_url", frontendUrl + "/wallet?order_id=" + orderId);
             paymentLinkRequest.put("callback_method","get");
 
             PaymentLink payment=razorpay.paymentLink.create(paymentLinkRequest);
@@ -157,12 +160,12 @@ public class PaymentServiceImpl implements PaymentService {
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:5173/wallet?order_id=" + orderId+"&payment_id={CHECKOUT_SESSION_ID}")
-                .setCancelUrl("http://localhost:5173/payment/cancel")
+                .setSuccessUrl(frontendUrl + "/wallet?order_id=" + orderId + "&payment_id={CHECKOUT_SESSION_ID}")
+                .setCancelUrl(frontendUrl + "/payment/cancel")
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)
                         .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-                                .setCurrency("usd")
+                                .setCurrency("inr")
                                 .setUnitAmount(amount * 100)
                                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                         .setName("Top up wallet")

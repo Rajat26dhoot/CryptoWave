@@ -3,6 +3,7 @@ import { AgCharts } from "ag-charts-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMarketChart } from "../../State/Coin/Action";
 import { Expand, Minimize2, Radio } from "lucide-react";
+import { formatCurrency } from "../../utils/currency";
 
 const StockChart = ({ data }) => {
   const [options, setOptions] = useState(null);
@@ -86,11 +87,7 @@ const StockChart = ({ data }) => {
                   hour: "2-digit",
                   minute: "2-digit",
                 }).format(datum.date),
-                content: new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  maximumFractionDigits: datum.price > 100 ? 0 : 4,
-                }).format(datum.price),
+                content: formatCurrency(datum.price, datum.price > 100 ? 0 : 4),
               }),
             },
           },

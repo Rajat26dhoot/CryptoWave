@@ -2,17 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getUserAssets } from "../State/Asset/Action";
 import { BriefcaseBusiness, Coins, Gem, LineChart, ShieldCheck } from "lucide-react";
-
-const formatCurrency = (value, digits = 2) => {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "--";
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: digits,
-  }).format(number);
-};
+import { formatCurrency } from "../utils/currency";
 
 const formatNumber = (value, digits = 6) => {
   const number = Number(value);

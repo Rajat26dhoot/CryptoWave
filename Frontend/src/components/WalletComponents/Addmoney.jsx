@@ -1,42 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CreditCard, ShieldCheck, Sparkles, X } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { useLocation, useNavigate,useSearchParams } from "react-router-dom";
-import { depositMoney, paymentHandler } from "../../State/Wallet/Action";
-
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+import { paymentHandler } from "../../State/Wallet/Action";
 
 const Addmoney = ({ isOpen, onClose }) => {
-  const [selectedMethod, setSelectedMethod] = useState(null);
+  const [selectedMethod] = useState("STRIPE");
   const [amount, setAmount] = useState("");
   const dispatch = useDispatch();
-  const query = useQuery();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  const orderId = searchParams.get("order_id");
-  const paymentId = searchParams.get("payment_id");
-
-  useEffect(() => {
-    if (orderId && paymentId) {
-      dispatch(
-        depositMoney({
-          jwt: localStorage.getItem("jwt"),
-          orderId,
-          paymentId,
-          navigate: () => navigate("/wallet"), 
-        })
-      );
-
-      window.history.replaceState(null, "", `${window.location.origin}/wallet`);
-    }
-  }, [orderId, paymentId, dispatch, navigate]);
 
   const handleConfirm = () => {
-    if (!amount || !selectedMethod) {
-      alert("Please enter amount and select payment method");
+    if (!amount) {
+      alert("Please enter amount");
       return;
     }
 
@@ -76,45 +50,21 @@ const Addmoney = ({ isOpen, onClose }) => {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="$0.00"
+            placeholder="₹0.00"
             required
           />
         </div>
 
         <div className="wallet-field">
-          <label>Select payment method</label>
+          <label>Payment method</label>
           <div className="payment-method-grid">
-            <label
-              className={`payment-method-card ${
-                selectedMethod === "RAZORPAY" ? "border-green-400" : ""
-              }`}
-            >
-              <input
-                type="radio"
-                name="payment"
-                value="RAZORPAY"
-                checked={selectedMethod === "RAZORPAY"}
-                onChange={() => setSelectedMethod("RAZORPAY")}
-              />
-              <span className="payment-radio" />
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThhv3MVGD_XJaEbcBgOkEIJdBQJBBVkReAjA&s"
-                alt="Razorpay"
-              />
-              <small>UPI and cards</small>
-            </label>
-
-            <label
-              className={`payment-method-card ${
-                selectedMethod === "STRIPE" ? "border-green-400" : ""
-              }`}
-            >
+            <label className="payment-method-card border-green-400">
               <input
                 type="radio"
                 name="payment"
                 value="STRIPE"
-                checked={selectedMethod === "STRIPE"}
-                onChange={() => setSelectedMethod("STRIPE")}
+                checked
+                readOnly
               />
               <span className="payment-radio" />
               <img

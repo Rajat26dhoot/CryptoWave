@@ -46,7 +46,7 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public Asset updateAsset(Long assetId, double quantity) throws Exception {
         Asset oldAsset=getAssetById(assetId);
-        oldAsset.setQuantity(quantity*oldAsset.getQuantity());
+        oldAsset.setQuantity(oldAsset.getQuantity() + quantity);
         return assetRepository.save(oldAsset);
     }
 

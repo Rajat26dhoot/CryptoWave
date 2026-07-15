@@ -8,7 +8,10 @@ import {
     LOGOUT,
     REGISTER_FAILURE,
     REGISTER_REQUEST,
-    REGISTER_SUCCESS
+    REGISTER_SUCCESS,
+    VERIFY_SIGNUP_OTP_FAILURE,
+    VERIFY_SIGNUP_OTP_REQUEST,
+    VERIFY_SIGNUP_OTP_SUCCESS
   } from "./ActionType";
   
   const initialState = {
@@ -16,12 +19,14 @@ import {
     loading: false,
     error: null,
     jwt: null,
+    signupOtpSent: false,
   };
   
   const authReducer = (state = initialState, action) => {
     switch (action.type) {
       case REGISTER_REQUEST:
       case LOGIN_REQUEST:
+      case VERIFY_SIGNUP_OTP_REQUEST:
       case GET_USER_REQUEST:
         return {
           ...state,
@@ -29,13 +34,22 @@ import {
           error: null,
         };
   
-      case REGISTER_SUCCESS:
       case LOGIN_SUCCESS:
+      case VERIFY_SIGNUP_OTP_SUCCESS:
         return {
           ...state,
           loading: false,
           jwt: action.payload,
           error: null,
+          signupOtpSent: false,
+        };
+
+      case REGISTER_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          error: null,
+          signupOtpSent: true,
         };
   
       case GET_USER_SUCCESS:
@@ -48,6 +62,7 @@ import {
   
       case REGISTER_FAILURE:
       case LOGIN_FAILURE:
+      case VERIFY_SIGNUP_OTP_FAILURE:
       case GET_USER_FAILURE:
         return {
           ...state,

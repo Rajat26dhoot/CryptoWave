@@ -2,6 +2,7 @@ import * as types from "./ActionType";
 import axios from "axios";
 import { BASE_URL } from "../../config/api";
 import api from "../../config/api.js";
+import { getUserWallet, getWalletTransaction } from "../Wallet/Action.js";
 
 export const withdrawalRequest=({amount,jwt})=>async(dispatch)=>{
     dispatch({type:types.WITHDRAWAL_REQUEST});
@@ -11,6 +12,11 @@ export const withdrawalRequest=({amount,jwt})=>async(dispatch)=>{
             headers: { Authorization: `Bearer ${jwt}` },
         });
         dispatch({ type: types.WITHDRAWAL_SUCCESS, payload: response.data });
+        await Promise.all([
+            dispatch(getUserWallet(jwt)),
+            dispatch(getWalletTransaction(jwt)),
+            dispatch(getWithdrawalHistory(jwt)),
+        ]);
     } catch (error) {
         console.log(error);
         dispatch({ type: types.WITHDRAWAL_FAILURE, payload: error.message });
@@ -25,6 +31,11 @@ export const proceedWithdrawal=({id,jwt,accept})=>async(dispatch)=>{
             headers: { Authorization: `Bearer ${jwt}` },
         }); 
         dispatch({ type: types.WITHDRAWAL_PROCEED_SUCCESS, payload: response.data }); 
+        await Promise.all([
+            dispatch(getUserWallet(jwt)),
+            dispatch(getWalletTransaction(jwt)),
+            dispatch(getAllWithdrawalRequest(jwt)),
+        ]);
     } catch (error) {
         console.log(error);
         dispatch({ type: types.WITHDRAWAL_PROCEED_FAILURE, payload: error.message }); 

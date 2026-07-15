@@ -18,7 +18,7 @@ export const getUserWallet = (jwt) => async (dispatch) => {
 
 
 
-export const getWalletTransaction = ({jwt}) => async (dispatch) => {
+export const getWalletTransaction = (jwt) => async (dispatch) => {
     dispatch({ type: types.GET_WALLET_TRANSACTION_REQUEST });
 
     try {
@@ -51,6 +51,10 @@ export const depositMoney = ({ jwt, orderId, paymentId, navigate }) => async (di
         console.log("deposit")
 
         dispatch({ type: types.DEPOSIT_MONEY_SUCCESS, payload: response.data });
+        await Promise.all([
+            dispatch(getUserWallet(jwt)),
+            dispatch(getWalletTransaction(jwt)),
+        ]);
         navigate("/wallet");
     } catch (error) {
         console.error("Deposit Error:", error?.response?.data || error.message);
@@ -97,6 +101,10 @@ export const transferMoney = ({ jwt, walletId, requestData }) => async (dispatch
         headers: { Authorization: `Bearer ${jwt}` },
       });
       dispatch({ type: types.TRANSFER_MONEY_SUCCESS, payload: response.data });
+      await Promise.all([
+        dispatch(getUserWallet(jwt)),
+        dispatch(getWalletTransaction(jwt)),
+      ]);
     } catch (error) {
       console.log(error);
       dispatch({ type: types.TRANSFER_MONEY_FAILURE, payload: error.message });

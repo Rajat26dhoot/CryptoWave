@@ -2,16 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { addItemToWatchlist, getUserWatchlist } from "../State/Watchlist/Action";
 import { BellRing, BookmarkX, Eye, Gem, LineChart, Radar, Star } from "lucide-react";
-
-const formatCurrency = (value) => {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "--";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: number > 100 ? 0 : 4,
-  }).format(number);
-};
+import { formatCompactCurrency, formatCurrency } from "../utils/currency";
 
 const formatCompact = (value) => {
   const number = Number(value);
@@ -90,7 +81,7 @@ const Watchlist = () => {
             </span>
             <div>
               <span>Combined market cap</span>
-              <strong>${formatCompact(totalMarketCap)}</strong>
+              <strong>{formatCompactCurrency(totalMarketCap)}</strong>
             </div>
           </article>
         </section>

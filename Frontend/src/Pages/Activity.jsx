@@ -2,21 +2,23 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersForUser } from "../State/Order/Action";
 import { calculateProfit } from "../utils/calculateProfit";
-import { Activity as ActivityIcon, CalendarDays, Clock3, History, TrendingUp } from "lucide-react";
+import { Activity as ActivityIcon, Clock3, History } from "lucide-react";
+import { formatCurrency } from "../utils/currency";
 
 const safeNumber = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
 };
 
-const formatCurrency = (value, digits = 2) => {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "--";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: digits,
-  }).format(number);
+const getTradeProfit = (trade) => {
+  if (trade?.orderType !== "SELL") return 0;
+
+  const quantity = safeNumber(trade?.orderItem?.quantity);
+  const buyPrice = safeNumber(trade?.orderItem?.buyPrice);
+  const sellPrice = safeNumber(trade?.orderItem?.sellPrice);
+
+  if (quantity <= 0 || buyPrice <= 0 || sellPrice <= 0) return 0;
+  return (sellPrice - buyPrice) * quantity;
 };
 
 const Activity = () => {
@@ -36,31 +38,6 @@ const Activity = () => {
     setTrades(Array.isArray(tradesData) ? tradesData : []);
   }, [tradesData]);
 
-  const realizedProfit = trades.reduce(
-    (acc, trade) => acc + safeNumber(trade?.profitLoss),
-    0
-  );
-  const monthlyProjection = realizedProfit * 4;
-  const yearlyProjection = realizedProfit * 52;
-
-  const summaryCards = [
-    {
-      label: "Today's Profit/Loss",
-      value: realizedProfit,
-      icon: TrendingUp,
-    },
-    {
-      label: "This Month's Projection",
-      value: monthlyProjection,
-      icon: CalendarDays,
-    },
-    {
-      label: "This Year's Projection",
-      value: yearlyProjection,
-      icon: ActivityIcon,
-    },
-  ];
-
   return (
     <div className="finance-shell min-h-screen text-white">
       <main className="finance-container">
@@ -74,29 +51,6 @@ const Activity = () => {
             <span className="status-pulse" />
             Order sync active
           </div>
-        </section>
-
-        <section className="finance-stat-grid">
-          {summaryCards.map(({ label, value, icon: Icon }) => {
-            const isPositive = value >= 0;
-            return (
-              <article
-                className={`finance-stat-card ${
-                  isPositive ? "finance-tone-green" : "finance-tone-red"
-                }`}
-                key={label}
-              >
-                <span className="finance-stat-icon">
-                  <Icon size={22} />
-                </span>
-                <div>
-                  <span>{label}</span>
-                  <strong>{formatCurrency(value)}</strong>
-                  <small>{isPositive ? "Positive momentum" : "Risk drawdown"}</small>
-                </div>
-              </article>
-            );
-          })}
         </section>
 
         <section className="finance-table-panel">
@@ -129,7 +83,7 @@ const Activity = () => {
                   trades.map((trade, index) => {
                     const isBuy = trade?.orderType === "BUY";
                     const hasSellPrice = Number(trade?.orderItem?.sellPrice) > 0;
-                    const profit = safeNumber(trade?.profitLoss);
+                    const profit = getTradeProfit(trade);
 
                     return (
                       <tr key={trade?.id || index}>
@@ -182,7 +136,7 @@ const Activity = () => {
                           )}
                         </td>
                         <td className="finance-value-cell">
-                          {formatCurrency(trade?.orderItem?.coin?.current_price, 6)}
+                          {formatCurrency(trade?.price, 6)}
                         </td>
                       </tr>
                     );

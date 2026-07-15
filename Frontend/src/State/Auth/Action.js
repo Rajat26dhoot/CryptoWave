@@ -8,7 +8,10 @@ import {
     LOGOUT,
     REGISTER_FAILURE,
     REGISTER_REQUEST,
-    REGISTER_SUCCESS
+    REGISTER_SUCCESS,
+    VERIFY_SIGNUP_OTP_FAILURE,
+    VERIFY_SIGNUP_OTP_REQUEST,
+    VERIFY_SIGNUP_OTP_SUCCESS
   } from "./ActionType";
   import axios from 'axios';
   import  {BASE_URL} from '../../config/api.js'
@@ -21,15 +24,37 @@ import {
       const user = response.data;
       console.log(user);
   
-      dispatch({ type: REGISTER_SUCCESS, payload: user.jwt });
-      localStorage.setItem('jwt', user.jwt);
+      dispatch({ type: REGISTER_SUCCESS, payload: user });
+      return user;
     } catch (error) {
-      dispatch({ type: REGISTER_FAILURE, payload: error.response?.data?.message || error.message });
+      const message = error.response?.data?.message || error.message;
+      dispatch({ type: REGISTER_FAILURE, payload: message });
       console.error("Registration error:", error);
+      throw new Error(message);
+    }
+  };
+
+  export const verifySignupOtp = (email, otp, navigate) => async (dispatch) => {
+    dispatch({ type: VERIFY_SIGNUP_OTP_REQUEST });
+
+    try {
+      const response = await axios.post(`${BASE_URL}/auth/signup/verify-otp`, { email, otp });
+      const user = response.data;
+      console.log(user);
+
+      dispatch({ type: VERIFY_SIGNUP_OTP_SUCCESS, payload: user.jwt });
+      localStorage.setItem('jwt', user.jwt);
+      navigate('/');
+      return user;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      dispatch({ type: VERIFY_SIGNUP_OTP_FAILURE, payload: message });
+      console.error("Signup OTP verification error:", error);
+      throw new Error(message);
     }
   };
   
-  export const login = (userData) => async (dispatch) => {
+  export const login = (userData, navigate) => async (dispatch) => {
     dispatch({ type: LOGIN_REQUEST });
     
     try {
@@ -39,10 +64,12 @@ import {
   
       dispatch({ type: LOGIN_SUCCESS, payload: user.jwt });
       localStorage.setItem('jwt', user.jwt);
-      userData.navigate('/'); // Redirect to home after login
+      navigate('/'); // Redirect to home after login
     } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, payload: error.response?.data?.message || error.message });
+      const message = error.response?.data?.message || error.message;
+      dispatch({ type: LOGIN_FAILURE, payload: message });
       console.error("Login error:", error);
+      throw new Error(message);
     }
   };
   

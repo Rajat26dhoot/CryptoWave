@@ -1,5 +1,7 @@
 import api from "../../config/api.js";
 import * as types from "./ActionType.js";
+import { getAssetDetails, getUserAssets } from "../Asset/Action.js";
+import { getUserWallet, getWalletTransaction } from "../Wallet/Action.js";
 
 
 export const payOrder = ({ jwt, orderData }) => async (dispatch) => {
@@ -12,9 +14,22 @@ export const payOrder = ({ jwt, orderData }) => async (dispatch) => {
             headers: { Authorization: `Bearer ${jwt}` },
         });
         dispatch({ type: types.PAY_ORDER_SUCCESS, payload: response.data });
+        await Promise.all([
+            dispatch(getUserWallet(jwt)),
+            dispatch(getWalletTransaction(jwt)),
+            dispatch(getUserAssets(jwt)),
+            dispatch(getAssetDetails({ coinId: orderData.coinId, jwt })),
+            dispatch(getAllOrdersForUser(jwt)),
+        ]);
     } catch (error) {
         console.log("Error:", error);
-        dispatch({ type: types.PAY_ORDER_FAILURE, payload: error.message });
+        const message =
+            error.response?.data?.message ||
+            error.response?.data?.error ||
+            error.message ||
+            "Order failed";
+        dispatch({ type: types.PAY_ORDER_FAILURE, payload: message });
+        throw new Error(message);
     }
 };
 

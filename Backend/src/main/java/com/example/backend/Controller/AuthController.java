@@ -1,26 +1,33 @@
 package com.example.backend.Controller;
 
 import com.example.backend.Configuration.JwtProvider;
+import com.example.backend.Model.SignupOtp;
 import com.example.backend.Model.TwoFactorOtp;
 import com.example.backend.Model.User;
+import com.example.backend.Repository.SignupOtpRepository;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Request.SignupOtpRequest;
 import com.example.backend.Response.AuthResponse;
 import com.example.backend.Service.CustomUserDetailsService;
 import com.example.backend.Service.EmailService;
 import com.example.backend.Service.TwoFactorOtpService;
 import com.example.backend.Service.WatchListService;
 import com.example.backend.Utils.OtpUtils;
+import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -34,17 +41,20 @@ public class AuthController {
     private final TwoFactorOtpService twoFactorOtpService;
     private final EmailService emailService;
     private final WatchListService watchListService;
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, CustomUserDetailsService customUserDetailsService, TwoFactorOtpService twoFactorOtpService,EmailService emailService,WatchListService watchListService) {
+    private final SignupOtpRepository signupOtpRepository;
+
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, CustomUserDetailsService customUserDetailsService, TwoFactorOtpService twoFactorOtpService, EmailService emailService, WatchListService watchListService, SignupOtpRepository signupOtpRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.customUserDetailsService = customUserDetailsService;
         this.twoFactorOtpService = twoFactorOtpService;
         this.emailService = emailService;
         this.watchListService = watchListService;
+        this.signupOtpRepository = signupOtpRepository;
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> registerUser(@RequestBody User user) {
+    public ResponseEntity<AuthResponse> registerUser(@RequestBody User user) throws Exception {
 
         Optional<User> existingUser = Optional.ofNullable(userRepository.findByEmail(user.getEmail()));
         if (existingUser.isPresent()) {
@@ -56,12 +66,52 @@ public class AuthController {
 
         String hashedPassword = passwordEncoder.encode(user.getPassword());
 
+        SignupOtp signupOtp = new SignupOtp();
+        signupOtp.setEmail(user.getEmail());
+        signupOtp.setUsername(user.getUsername());
+        signupOtp.setPassword(hashedPassword);
+        signupOtp.setOtp(OtpUtils.generateOtp());
+        signupOtp.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+
+        signupOtpRepository.save(signupOtp);
+        emailService.sendVerificationOtpEmail(signupOtp.getEmail(), signupOtp.getOtp());
+
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setStatus(true);
+        authResponse.setMessage("OTP sent to your email. Please verify to complete registration.");
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authResponse);
+    }
+
+    @PostMapping("/signup/verify-otp")
+    public ResponseEntity<AuthResponse> verifySignupOtp(@RequestBody SignupOtpRequest request) {
+        SignupOtp signupOtp = signupOtpRepository.findById(request.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("Signup OTP not found. Please register again."));
+
+        if (signupOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
+            signupOtpRepository.delete(signupOtp);
+            throw new BadCredentialsException("Signup OTP expired. Please register again.");
+        }
+
+        if (!signupOtp.getOtp().equals(request.getOtp())) {
+            throw new BadCredentialsException("Invalid signup OTP");
+        }
+
+        if (userRepository.findByEmail(signupOtp.getEmail()) != null) {
+            signupOtpRepository.delete(signupOtp);
+            AuthResponse errorResponse = new AuthResponse();
+            errorResponse.setStatus(false);
+            errorResponse.setMessage("Email is already used with another account");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
         User newUser = new User();
-        newUser.setUsername(user.getUsername());
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword(hashedPassword);
+        newUser.setUsername(signupOtp.getUsername());
+        newUser.setEmail(signupOtp.getEmail());
+        newUser.setPassword(signupOtp.getPassword());
 
         User savedUser = userRepository.save(newUser);
+        signupOtpRepository.delete(signupOtp);
 
         watchListService.createWatchList(savedUser);
 
@@ -78,7 +128,7 @@ public class AuthController {
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(jwt);
         authResponse.setStatus(true);
-        authResponse.setMessage("Registration successful");
+        authResponse.setMessage("Registration verified successfully");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
     }
@@ -97,7 +147,7 @@ public class AuthController {
 
         User authuser =userRepository.findByEmail(email);
 
-        if(user.getTwoFactorAuth().isEnabled()){
+        if(authuser.getTwoFactorAuth() != null && authuser.getTwoFactorAuth().isEnabled()){
             AuthResponse res = new AuthResponse();
             res.setMessage("Two-factor authentication enabled");
             res.setTwoFactorAuthEnabled(true);
@@ -128,7 +178,12 @@ public class AuthController {
     }
 
     private Authentication authenticate(String input, String password) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(input);
+        UserDetails userDetails;
+        try {
+            userDetails = customUserDetailsService.loadUserByUsername(input);
+        } catch (UsernameNotFoundException ex) {
+            throw new BadCredentialsException("Invalid username or email");
+        }
 
         if (userDetails == null) {
             throw new BadCredentialsException("Invalid username or email");
@@ -145,11 +200,37 @@ public class AuthController {
         );
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<AuthResponse> handleBadCredentials(BadCredentialsException ex) {
+        AuthResponse response = new AuthResponse();
+        response.setStatus(false);
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler({MessagingException.class, MailException.class})
+    public ResponseEntity<AuthResponse> handleMailError(Exception ex) {
+        AuthResponse response = new AuthResponse();
+        response.setStatus(false);
+        String errorMessage = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+        if (errorMessage.contains("authentication") || errorMessage.contains("credentials")) {
+            response.setMessage("Unable to send OTP email. Gmail SMTP rejected the username or app password.");
+        } else if (errorMessage.contains("connect") || errorMessage.contains("timeout")) {
+            response.setMessage("Unable to send OTP email. Could not connect to the mail server.");
+        } else {
+            response.setMessage("Unable to send OTP email. Please check mail configuration.");
+        }
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+
     @PostMapping("/two-factor/otp/{otp}")
     public ResponseEntity<AuthResponse> verifySiginOtp(@PathVariable String otp,@RequestParam String id){
 
 
         TwoFactorOtp twoFactorOtp=twoFactorOtpService.findById(id);
+        if (twoFactorOtp == null) {
+            throw new BadCredentialsException("Invalid otp session");
+        }
         if(twoFactorOtpService.verifyTwoFactorOtp(twoFactorOtp,otp)){
             AuthResponse authResponse = new AuthResponse();
             authResponse.setMessage("Two-factor authentication verified");

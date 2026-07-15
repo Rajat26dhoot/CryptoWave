@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { register, login } from "../State/Auth/Action";
+import { useDispatch, useSelector } from "react-redux";
+import { register, login, verifySignupOtp } from "../State/Auth/Action";
 import { useNavigate } from "react-router-dom";
 import '../Responsivecss/Login.css';
 
@@ -12,8 +12,12 @@ export default function Login({ onClose }) {
     email: "",
     password: "",
   });
+  const [otp, setOtp] = useState("");
+  const [pendingSignupEmail, setPendingSignupEmail] = useState("");
+  const [localMessage, setLocalMessage] = useState("");
 
   const dispatch = useDispatch();
+  const { error, loading } = useSelector((store) => store.auth);
   const navigate = useNavigate();
 
   const handleToggle = () => {
@@ -22,6 +26,9 @@ export default function Login({ onClose }) {
       setIsLogin((prev) => !prev);
       setIsAnimating(false);
       setFormData({ username: "", email: "", password: "" }); // Reset form data on toggle
+      setOtp("");
+      setPendingSignupEmail("");
+      setLocalMessage("");
     }, 1000);
   };
 
@@ -29,14 +36,36 @@ export default function Login({ onClose }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    dispatch(login(formData, navigate));
+    setLocalMessage("");
+    try {
+      await dispatch(login(formData, navigate));
+    } catch (err) {
+      setLocalMessage(err.message);
+    }
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    dispatch(register(formData, navigate));
+    setLocalMessage("");
+    try {
+      const response = await dispatch(register(formData));
+      setPendingSignupEmail(formData.email);
+      setLocalMessage(response.message || "OTP sent to your email.");
+    } catch (err) {
+      setLocalMessage(err.message);
+    }
+  };
+
+  const handleVerifySignupOtp = async (e) => {
+    e.preventDefault();
+    setLocalMessage("");
+    try {
+      await dispatch(verifySignupOtp(pendingSignupEmail, otp, navigate));
+    } catch (err) {
+      setLocalMessage(err.message);
+    }
   };
 
   return (
@@ -113,11 +142,58 @@ export default function Login({ onClose }) {
                   className="w-full px-4 py-3 border border-gray-700 rounded-lg text-white focus:outline-none transition duration-200 hover:border-green-400 focus:border-green-400"
                 />
               </div>
+              {(localMessage || error) && (
+                <p className="mb-4 text-sm text-red-400">{localMessage || error}</p>
+              )}
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-green-400 text-black py-3 rounded-lg font-semibold hover:bg-green-500 transition"
               >
-                Login
+                {loading ? "Please wait..." : "Login"}
+              </button>
+            </form>
+          ) : pendingSignupEmail ? (
+            <form onSubmit={handleVerifySignupOtp} className="w-3/4">
+              <h2 className="text-2xl font-bold mb-3 text-green-400 text-center">
+                Verify Email
+              </h2>
+              <p className="text-sm text-gray-300 mb-4 text-center">
+                Enter the OTP sent to {pendingSignupEmail}
+              </p>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  name="otp"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="6-digit OTP"
+                  maxLength="6"
+                  className="w-full px-4 py-3 border border-gray-700 rounded-lg text-white focus:outline-none transition duration-200 hover:border-green-400 focus:border-green-400"
+                />
+              </div>
+              {(localMessage || error) && (
+                <p className={`mb-4 text-sm ${error ? "text-red-400" : "text-green-400"}`}>
+                  {localMessage || error}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-green-400 text-black py-3 rounded-lg font-semibold hover:bg-green-500 transition"
+              >
+                {loading ? "Verifying..." : "Confirm OTP"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingSignupEmail("");
+                  setOtp("");
+                  setLocalMessage("");
+                }}
+                className="w-full mt-3 border border-green-400 text-green-400 py-3 rounded-lg font-semibold hover:bg-green-400 hover:text-black transition"
+              >
+                Edit Details
               </button>
             </form>
           ) : (
@@ -155,11 +231,15 @@ export default function Login({ onClose }) {
                   className="w-full px-4 py-3 border border-gray-700 rounded-lg text-white focus:outline-none transition duration-200 hover:border-green-400 focus:border-green-400"
                 />
               </div>
+              {(localMessage || error) && (
+                <p className="mb-4 text-sm text-red-400">{localMessage || error}</p>
+              )}
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-green-400 text-black py-3 rounded-lg font-semibold hover:bg-green-500 transition"
               >
-                Register
+                {loading ? "Sending OTP..." : "Register"}
               </button>
             </form>
           )}

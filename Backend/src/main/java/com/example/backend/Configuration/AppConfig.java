@@ -1,6 +1,7 @@
 package com.example.backend.Configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,12 +17,15 @@ import java.util.Collections;
 @Configuration
 public class AppConfig {
 
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
             cfg.setAllowedOrigins(Arrays.asList( 
                 "http://localhost:5173",
-                 "https://crypto-wave-teal.vercel.app"
+                frontendUrl
             ));
             cfg.setAllowedMethods(Collections.singletonList("*"));
             cfg.setAllowCredentials(true);

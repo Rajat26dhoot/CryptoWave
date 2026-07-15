@@ -3,6 +3,7 @@ package com.example.backend.Service;
 
 import com.example.backend.Domain.OrderStatus;
 import com.example.backend.Domain.OrderType;
+import com.example.backend.Domain.WalletTransactionType;
 import com.example.backend.Model.*;
 import com.example.backend.Repository.OrderItemRepository;
 import com.example.backend.Repository.OrderRepository;
@@ -30,6 +31,9 @@ public class OrderServiceImpl  implements  OrderService{
 
     @Autowired
     private AssetService assetService;
+
+    @Autowired
+    private WalletTransactionService walletTransactionService;
 
 
     @Override
@@ -82,6 +86,12 @@ public class OrderServiceImpl  implements  OrderService{
         orderItem.setOrder(order);
 
         walletService.payOrderPayment(order,user);
+        walletTransactionService.createTransaction(
+                walletService.getUserWallet(user),
+                WalletTransactionType.BUY_ASSET,
+                -order.getPrice().longValue(),
+                "BUY " + coin.getSymbol()
+        );
 
         order.setStatus(OrderStatus.SUCCESS);
          order.setOrderType(OrderType.BUY);
@@ -93,7 +103,12 @@ public class OrderServiceImpl  implements  OrderService{
             assetService.createAsset(user,orderItem.getCoin(),orderItem.getQuantity());
 
         }else{
-            assetService.updateAsset(oldAsset.getId(),quantity);
+            double updatedQuantity = oldAsset.getQuantity() + quantity;
+            double updatedBuyPrice =
+                    ((oldAsset.getBuyPrice() * oldAsset.getQuantity()) + (buyPrice * quantity))
+                            / updatedQuantity;
+            Asset updatedAsset = assetService.updateAsset(oldAsset.getId(), quantity);
+            updatedAsset.setBuyPrice(updatedBuyPrice);
         }
 
         return savedOrder;
@@ -108,8 +123,8 @@ public class OrderServiceImpl  implements  OrderService{
         double sellPrice =coin.getCurrentPrice();
 
         Asset assetToSell=assetService.findAssetByUserIdAndCoinId(user.getId(),coin.getId());
-        double buyPrice = assetToSell.getBuyPrice();
         if(assetToSell!=null) {
+            double buyPrice = assetToSell.getBuyPrice();
             OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, sellPrice);
 
             Order order = createOrder(user, orderItem, OrderType.SELL);
@@ -120,6 +135,12 @@ public class OrderServiceImpl  implements  OrderService{
                 order.setOrderType(OrderType.SELL);
                 Order savedOrder=orderRepository.save(order);
                 walletService.payOrderPayment(order, user);
+                walletTransactionService.createTransaction(
+                        walletService.getUserWallet(user),
+                        WalletTransactionType.SELL_ASSET,
+                        order.getPrice().longValue(),
+                        "SELL " + coin.getSymbol()
+                );
 
                 Asset updatedAsset=assetService.updateAsset(assetToSell.getId(),-quantity);
 

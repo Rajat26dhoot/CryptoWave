@@ -3,10 +3,11 @@ package com.example.backend.Controller;
 
 import com.example.backend.Model.User;
 import com.example.backend.Model.Wallet;
-import com.example.backend.Model.WalletTransaction;
 import com.example.backend.Model.Withdrawal;
+import com.example.backend.Domain.WalletTransactionType;
 import com.example.backend.Service.UserService;
 import com.example.backend.Service.WalletService;
+import com.example.backend.Service.WalletTransactionService;
 import com.example.backend.Service.WithdrawalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,8 @@ public class WithdrawalController {
     @Autowired
     private UserService userService;
 
-//    @Autowired
-//    private WalletTransactionService walletTransactionService;
+    @Autowired
+    private WalletTransactionService walletTransactionService;
 
     @PostMapping("/{amount}")
     public ResponseEntity<?> withdrawalRequest(
@@ -42,6 +43,12 @@ public class WithdrawalController {
 
         Withdrawal withdrawal=withdrawalService.requestWithdrawal(amount,user);
         walletService.addBalance(userWallet,-withdrawal.getAmount());
+        walletTransactionService.createTransaction(
+                userWallet,
+                WalletTransactionType.WITHDRAWAL,
+                -withdrawal.getAmount(),
+                "Withdrawal request #" + withdrawal.getId()
+        );
 
         return new ResponseEntity<>(withdrawal, HttpStatus.OK);
 
@@ -60,6 +67,12 @@ public class WithdrawalController {
 
         if(!accept){
             walletService.addBalance(userWallet,withdrawal.getAmount());
+            walletTransactionService.createTransaction(
+                    userWallet,
+                    WalletTransactionType.ADD_MONEY,
+                    withdrawal.getAmount(),
+                    "Withdrawal refund #" + withdrawal.getId()
+            );
         }
 
         return new ResponseEntity<>(withdrawal, HttpStatus.OK);

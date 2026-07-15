@@ -17,6 +17,7 @@ import {
   Sparkles,
   Wallet,
 } from 'lucide-react';
+import { formatCompactCurrency, formatCurrency } from '../../utils/currency';
 
 const formatCompact = (value, options = {}) => {
   if (value === null || value === undefined || Number.isNaN(Number(value))) {
@@ -27,18 +28,6 @@ const formatCompact = (value, options = {}) => {
     notation: 'compact',
     maximumFractionDigits: 2,
     ...options,
-  }).format(value);
-};
-
-const formatCurrency = (value) => {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) {
-    return '--';
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: value > 100 ? 0 : 4,
   }).format(value);
 };
 
@@ -88,13 +77,13 @@ const Dashboardcontent = () => {
   const statCards = [
     {
       label: 'Total market cap',
-      value: `$${formatCompact(totalMarketCap)}`,
+      value: formatCompactCurrency(totalMarketCap),
       icon: Layers3,
       accent: 'emerald',
     },
     {
       label: '24h volume',
-      value: `$${formatCompact(totalVolume)}`,
+      value: formatCompactCurrency(totalVolume),
       icon: BarChart3,
       accent: 'cyan',
     },
@@ -196,7 +185,7 @@ const Dashboardcontent = () => {
                           <img src={coin.image} alt={coin.name} />
                           <div>
                             <strong>{coin.name}</strong>
-                            <span>USD spot</span>
+                            <span>INR spot</span>
                           </div>
                         </div>
                       </td>
@@ -244,7 +233,7 @@ const Dashboardcontent = () => {
               )}
               <div>
                 <span className="section-kicker">Selected Pair</span>
-                <strong>{selectedCoin?.name || 'Bitcoin'} / USD</strong>
+                <strong>{selectedCoin?.name || 'Bitcoin'} / INR</strong>
               </div>
             </div>
             <span

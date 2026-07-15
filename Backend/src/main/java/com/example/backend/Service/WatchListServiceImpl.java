@@ -45,10 +45,10 @@ public class WatchListServiceImpl implements WatchListService {
     @Override
     public Coin addItemToWatchList(User user, Coin coin) throws Exception {
         WatchList watchList=findUserWatchList(user.getId());
-        if(watchList.getCoins().contains(coin)) {
-            watchList.getCoins().remove(coin);
+        if(watchList.hasCoin(coin.getId())) {
+            watchList.removeCoin(coin.getId());
         }else{
-            watchList.getCoins().add(coin);
+            watchList.addCoin(coin);
         }
         watchListRepository.save(watchList);
         return coin;

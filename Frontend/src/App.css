@@ -614,6 +614,144 @@ button {
   line-height: 1.4;
 }
 
+.trade-page {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(0, 230, 118, 0.12), transparent 30%),
+    radial-gradient(circle at 82% 0%, rgba(66, 211, 255, 0.1), transparent 28%),
+    #050608;
+}
+
+.trade-page-container {
+  width: min(100% - 32px, 1440px);
+  margin: 0 auto;
+  padding: 120px 0 56px;
+}
+
+.trade-header-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.trade-coin-meta {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.trade-coin-name {
+  min-width: 0;
+  color: #ffffff;
+  font-size: clamp(1.05rem, 4vw, 1.45rem);
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.trade-symbol {
+  color: #8e9aab;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.trade-price,
+.trade-change {
+  font-size: 0.86rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.trade-price,
+.trade-change-up {
+  color: #00e676;
+}
+
+.trade-change-down {
+  color: #ff5871;
+}
+
+.trade-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+}
+
+.trade-secondary-button,
+.trade-primary-button {
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.trade-secondary-button {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.trade-secondary-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 230, 118, 0.55);
+  background: rgba(0, 230, 118, 0.1);
+}
+
+.trade-primary-button {
+  border: 0;
+  color: #041009;
+  background: #ffffff;
+}
+
+.trade-primary-button:hover {
+  transform: translateY(-2px);
+  background: #dfffea;
+}
+
+.trade-range-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 230, 118, 0.42) transparent;
+}
+
+.trade-range-row button {
+  flex: 0 0 auto;
+  min-width: 58px;
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 999px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 900;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.trade-range-row button:hover {
+  border-color: rgba(0, 230, 118, 0.65);
+  background: rgba(0, 230, 118, 0.1);
+}
+
+.trade-range-row button.active {
+  border-color: #00e676;
+  color: #041109;
+  background: #00e676;
+}
+
+.trade-chart-wrap {
+  min-width: 0;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -648,6 +786,309 @@ button {
   animation: fadeIn 0.3s ease-out;
 }
 
+.ai-chatbot {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  color: #f7fbff;
+}
+
+.ai-chat-panel {
+  width: min(420px, calc(100vw - 32px));
+  height: min(640px, calc(100vh - 128px));
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)),
+    rgba(8, 10, 14, 0.9);
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(26px);
+  animation: chatRise 180ms ease-out;
+}
+
+.ai-chat-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(0, 230, 118, 0.2), transparent 32%),
+    radial-gradient(circle at 92% 8%, rgba(66, 211, 255, 0.16), transparent 28%),
+    linear-gradient(220deg, transparent 58%, rgba(247, 208, 70, 0.1));
+}
+
+.ai-chat-header,
+.ai-chat-context,
+.ai-chat-messages,
+.ai-chat-prompts,
+.ai-chat-form {
+  position: relative;
+  z-index: 1;
+}
+
+.ai-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ai-chat-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.ai-chat-mark,
+.ai-message-avatar,
+.ai-chat-fab {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+}
+
+.ai-chat-mark {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  color: #041009;
+  background: linear-gradient(135deg, #f7d046, #00e676 66%, #42d3ff);
+  box-shadow: 0 16px 34px rgba(0, 230, 118, 0.24);
+}
+
+.ai-chat-title span {
+  display: block;
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 900;
+}
+
+.ai-chat-title small {
+  display: block;
+  margin-top: 2px;
+  color: #8794a7;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.ai-chat-icon-button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: #dfe8f4;
+  background: rgba(255, 255, 255, 0.055);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.ai-chat-icon-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 230, 118, 0.58);
+  background: rgba(0, 230, 118, 0.12);
+}
+
+.ai-chat-context {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 12px 14px 0;
+  min-height: 38px;
+  border: 1px solid rgba(0, 230, 118, 0.18);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: #dfffea;
+  background: rgba(5, 14, 11, 0.62);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.ai-chat-context button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  border: 0;
+  color: #041009;
+  background: #00e676;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.ai-chat-messages {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 230, 118, 0.42) rgba(255, 255, 255, 0.06);
+}
+
+.ai-message {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 9px;
+  align-items: flex-start;
+}
+
+.ai-message-user {
+  grid-template-columns: minmax(0, 1fr) 28px;
+}
+
+.ai-message-user .ai-message-avatar {
+  grid-column: 2;
+}
+
+.ai-message-user p {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  border-color: rgba(0, 230, 118, 0.22);
+  color: #ecfff5;
+  background: rgba(0, 230, 118, 0.12);
+}
+
+.ai-message-avatar {
+  width: 28px;
+  height: 28px;
+  color: #00e676;
+  background: rgba(0, 230, 118, 0.11);
+}
+
+.ai-message p {
+  max-width: 100%;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: #dfe8f4;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.ai-chat-prompts {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 14px 12px;
+}
+
+.ai-chat-prompts button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 0 11px;
+  color: #cfd8e6;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 0.76rem;
+  font-weight: 800;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.ai-chat-prompts button:hover {
+  border-color: rgba(66, 211, 255, 0.5);
+  color: #ffffff;
+  background: rgba(66, 211, 255, 0.1);
+}
+
+.ai-chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 9px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ai-chat-form input {
+  min-width: 0;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #ffffff;
+  outline: 0;
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 700;
+}
+
+.ai-chat-form input::placeholder {
+  color: #758296;
+}
+
+.ai-chat-form input:focus {
+  border-color: rgba(0, 230, 118, 0.6);
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1);
+}
+
+.ai-chat-form button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  color: #041009;
+  background: linear-gradient(135deg, #f7d046, #00e676 66%, #42d3ff);
+  box-shadow: 0 16px 34px rgba(0, 230, 118, 0.22);
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+.ai-chat-form button:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.12);
+}
+
+.ai-chat-fab {
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #041009;
+  background: linear-gradient(135deg, #f7d046, #00e676 66%, #42d3ff);
+  box-shadow:
+    0 20px 46px rgba(0, 230, 118, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.ai-chat-fab:hover {
+  transform: translateY(-3px);
+  filter: saturate(1.12);
+  box-shadow: 0 28px 58px rgba(0, 230, 118, 0.34);
+}
+
+.ai-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes chatRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 1120px) {
   .dashboard-hero {
     align-items: flex-start;
@@ -661,6 +1102,64 @@ button {
 }
 
 @media (max-width: 760px) {
+  .ai-chatbot {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+  }
+
+  .ai-chat-panel {
+    width: 100%;
+    height: min(620px, calc(100vh - 104px));
+  }
+
+  .ai-chat-fab {
+    width: 54px;
+    height: 54px;
+  }
+
+  .trade-page-container {
+    width: min(100% - 20px, 1440px);
+    padding-top: 104px;
+    padding-bottom: 40px;
+  }
+
+  .trade-header-panel {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .trade-coin-meta {
+    gap: 6px 8px;
+  }
+
+  .trade-coin-name {
+    flex: 1 1 100%;
+  }
+
+  .trade-actions {
+    width: 100%;
+  }
+
+  .trade-secondary-button,
+  .trade-primary-button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
+    padding: 0 12px;
+  }
+
+  .trade-range-row {
+    justify-content: flex-start;
+    margin-inline: -2px;
+    padding-inline: 2px;
+  }
+
+  .trade-range-row button {
+    min-width: 64px;
+  }
+
   .dashboard-hero {
     padding-top: 92px;
   }
@@ -709,6 +1208,57 @@ button {
 
   .chart-canvas {
     height: 286px;
+  }
+}
+
+@media (max-width: 480px) {
+  .trade-page-container {
+    width: min(100% - 12px, 1440px);
+  }
+
+  .trade-header-panel {
+    margin-bottom: 12px;
+  }
+
+  .trade-price,
+  .trade-change,
+  .trade-symbol {
+    font-size: 0.78rem;
+  }
+
+  .trade-range-row {
+    gap: 6px;
+  }
+
+  .trade-range-row button {
+    min-width: 56px;
+    min-height: 36px;
+    padding: 0 11px;
+    font-size: 0.78rem;
+  }
+
+  .stock-chart-surface {
+    min-height: 310px;
+    padding: 8px;
+  }
+
+  .chart-meta-row {
+    margin-bottom: 4px;
+  }
+
+  .live-chip {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 0.7rem;
+  }
+
+  .chart-action-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .chart-canvas {
+    height: 248px;
   }
 }
 
@@ -1082,6 +1632,19 @@ button {
 .wallet-history-amount {
   color: #00e676;
   font-size: 1.08rem;
+}
+
+.wallet-history-amount-negative {
+  color: #ff6b6b;
+}
+
+.wallet-history-empty {
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 18px;
+  color: #8d9aac;
+  background: rgba(255,255,255,0.035);
+  text-align: center;
 }
 
 .wallet-modal-backdrop {

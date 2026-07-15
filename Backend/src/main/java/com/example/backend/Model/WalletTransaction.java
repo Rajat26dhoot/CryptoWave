@@ -2,7 +2,7 @@ package com.example.backend.Model;
 
 
 import com.example.backend.Domain.WalletTransactionType;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,12 +14,14 @@ import java.time.LocalDateTime;
 public class WalletTransaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     private Wallet wallet;
 
+    @Enumerated(EnumType.STRING)
     private WalletTransactionType type;
 
 

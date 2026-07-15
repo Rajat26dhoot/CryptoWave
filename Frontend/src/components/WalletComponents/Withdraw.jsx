@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowUpRight, Landmark, ShieldCheck, X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { withdrawalRequest } from "../../State/Withdrawal/Action";
+import { formatCurrency } from "../../utils/currency";
 
 const Withdraw = ({ isOpen, onClose, availableBalance }) => {
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -20,7 +21,7 @@ const Withdraw = ({ isOpen, onClose, availableBalance }) => {
           jwt: localStorage.getItem("jwt"),
         })
       );
-      console.log(`Withdrawing $${withdrawAmount} to ${selectedBank}`);
+      console.log(`Withdrawing ₹${withdrawAmount} to ${selectedBank}`);
       onClose();
     }
   };
@@ -48,14 +49,14 @@ const Withdraw = ({ isOpen, onClose, availableBalance }) => {
 
         <div className="wallet-balance-strip">
           <span>Available balance</span>
-          <strong>${Number(availableBalance || 0).toFixed(2)}</strong>
+          <strong>{formatCurrency(availableBalance)}</strong>
         </div>
 
         <div className="wallet-field">
           <label>Enter withdrawal amount</label>
           <input
             type="number"
-            placeholder="$0.00"
+            placeholder="₹0.00"
             value={withdrawAmount}
             onChange={(e) => setWithdrawAmount(e.target.value)}
           />

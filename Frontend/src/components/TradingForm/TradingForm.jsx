@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getUserWallet } from '../../State/Wallet/Action';
+import { getUserAssets } from '../../State/Asset/Action';
 import { payOrder } from '../../State/Order/Action';
+import { formatCurrency } from '../../utils/currency';
 
 const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h, isOpen, onClose }) => {
-    if (!isOpen) return null;
-
     const dispatch = useDispatch();
 
     const [amount, setAmount] = useState('');
     const [quantity, setQuantity] = useState('');
+    const [tradeAlert, setTradeAlert] = useState('');
 
     // Fetch wallet details
-    const { wallet } = useSelector((state) => state);
+    const { wallet, asset } = useSelector((state) => state);
     const userWallet = wallet?.userWallet;
+    const userAssets = asset?.userAsset || [];
+    const selectedAsset = userAssets.find((item) => item?.coin?.id === coinId);
+    const availableQuantity = Number(selectedAsset?.quantity) || 0;
 
     useEffect(() => {
         if (coinId) {
-            dispatch(getUserWallet(localStorage.getItem('jwt')));
+            const jwt = localStorage.getItem('jwt');
+            dispatch(getUserWallet(jwt));
+            dispatch(getUserAssets(jwt));
         }
     }, [coinId, dispatch]);
+
+    if (!isOpen) return null;
 
     // Calculate Quantity based on amount
     const calculateByCost = (amount, price) => {
@@ -40,6 +48,7 @@ const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h,
     const handleAmountChange = (e) => {
         const value = e.target.value === '' ? '' : parseFloat(e.target.value) || 0;
         setAmount(value);
+        setTradeAlert('');
 
         if (value === '') {
             setQuantity('');
@@ -53,6 +62,7 @@ const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h,
     const handleQuantityChange = (e) => {
         const value = e.target.value === '' ? '' : parseFloat(e.target.value) || 0;
         setQuantity(value);
+        setTradeAlert('');
 
         if (value === '') {
             setAmount('');
@@ -63,42 +73,84 @@ const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h,
     };
 
     // Handle Buy and Sell Actions
-    const handleBuy = () => {
-        if (!amount || !quantity) return alert('Please enter a valid amount');
+    const showTradeAlert = (message) => {
+        setTradeAlert(message);
+    };
+
+    const handleBuy = async () => {
+        const orderAmount = Number(amount);
+        const orderQuantity = Number(quantity);
+        const availableCash = Number(userWallet?.balance) || 0;
+
+        if (!orderAmount || !orderQuantity || orderAmount <= 0 || orderQuantity <= 0) {
+            showTradeAlert('Please enter a valid amount and quantity.');
+            return;
+        }
+
+        if (orderAmount > availableCash) {
+            showTradeAlert(
+                `Insufficient wallet balance. Available cash is ${formatCurrency(availableCash)}.`
+            );
+            return;
+        }
 
         const orderData = {
             coinId,
-            quantity,
+            quantity: orderQuantity,
             orderType: 'BUY',
         };
 
-        dispatch(
-            payOrder({
-                jwt: localStorage.getItem('jwt'),
-                orderData,
-            })
-        );
-
-        onClose();
+        try {
+            await dispatch(
+                payOrder({
+                    jwt: localStorage.getItem('jwt'),
+                    orderData,
+                })
+            );
+            onClose();
+        } catch (error) {
+            showTradeAlert(error.message);
+        }
     };
 
-    const handleSell = () => {
-        if (!amount || !quantity) return alert('Please enter a valid amount');
+    const handleSell = async () => {
+        const orderAmount = Number(amount);
+        const orderQuantity = Number(quantity);
+
+        if (!orderAmount || !orderQuantity || orderAmount <= 0 || orderQuantity <= 0) {
+            showTradeAlert('Please enter a valid amount and quantity.');
+            return;
+        }
+
+        if (availableQuantity <= 0) {
+            showTradeAlert(`You do not have any ${coinName} available to sell.`);
+            return;
+        }
+
+        if (orderQuantity > availableQuantity) {
+            showTradeAlert(
+                `Insufficient ${coinName} quantity. Available quantity is ${availableQuantity}.`
+            );
+            return;
+        }
 
         const orderData = {
             coinId,
-            quantity,
+            quantity: orderQuantity,
             orderType: 'SELL',
         };
 
-        dispatch(
-            payOrder({
-                jwt: localStorage.getItem('jwt'),
-                orderData,
-            })
-        );
-
-        onClose(); 
+        try {
+            await dispatch(
+                payOrder({
+                    jwt: localStorage.getItem('jwt'),
+                    orderData,
+                })
+            );
+            onClose();
+        } catch (error) {
+            showTradeAlert(error.message);
+        }
     };
 
     return (
@@ -132,6 +184,12 @@ const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h,
                     />
                 </div>
 
+                {tradeAlert && (
+                    <div className="mb-6 rounded border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-200">
+                        {tradeAlert}
+                    </div>
+                )}
+
                 {/* Token Info */}
                 <div className="mb-6">
                     <div className="flex justify-between items-center">
@@ -139,7 +197,7 @@ const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h,
                     </div>
                     <div className="flex justify-between">
                         <span className="text-green-400 text-lg">
-                            ${currentPrice?.toLocaleString()}
+                            {formatCurrency(currentPrice)}
                         </span>
                         <span
                             className={`${
@@ -161,8 +219,12 @@ const TradingForm = ({ coinId, coinName, currentPrice, priceChangePercentage24h,
                 <div className="flex justify-between mb-6 text-gray-400 text-lg">
                     <span>Available Cash</span>
                     <span className="text-white">
-                        ${userWallet?.balance?.toLocaleString() || '0.00'}
+                        {formatCurrency(userWallet?.balance || 0)}
                     </span>
+                </div>
+                <div className="flex justify-between mb-6 text-gray-400 text-lg">
+                    <span>Available Qty</span>
+                    <span className="text-white">{availableQuantity}</span>
                 </div>
 
                 {/* Action Buttons */}
