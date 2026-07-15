@@ -23,9 +23,12 @@ public class AppConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
+            String normalizedFrontendUrl = frontendUrl == null
+                    ? ""
+                    : frontendUrl.replaceAll("/+$", "");
             cfg.setAllowedOrigins(Arrays.asList( 
                 "http://localhost:5173",
-                frontendUrl
+                normalizedFrontendUrl
             ));
             cfg.setAllowedMethods(Collections.singletonList("*"));
             cfg.setAllowCredentials(true);

@@ -85,6 +85,9 @@ import {
   
       dispatch({ type: GET_USER_SUCCESS, payload: user });
     } catch (error) {
+      if ([401, 403].includes(error.response?.status)) {
+        localStorage.removeItem('jwt');
+      }
       dispatch({ type: GET_USER_FAILURE, payload: error.response?.data?.message || error.message });
       console.error("Get user error:", error);
     }
