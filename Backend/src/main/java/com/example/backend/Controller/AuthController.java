@@ -178,6 +178,10 @@ public class AuthController {
     }
 
     private Authentication authenticate(String input, String password) {
+        if (input == null || input.isBlank() || password == null || password.isBlank()) {
+            throw new BadCredentialsException("Email and password are required");
+        }
+
         UserDetails userDetails;
         try {
             userDetails = customUserDetailsService.loadUserByUsername(input);
@@ -189,13 +193,22 @@ public class AuthController {
             throw new BadCredentialsException("Invalid username or email");
         }
 
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+        String encodedPassword = userDetails.getPassword();
+        if (encodedPassword == null || encodedPassword.isBlank()) {
+            throw new BadCredentialsException("Invalid username or email");
+        }
+
+        try {
+            if (!passwordEncoder.matches(password, encodedPassword)) {
+                throw new BadCredentialsException("Invalid password");
+            }
+        } catch (IllegalArgumentException ex) {
             throw new BadCredentialsException("Invalid password");
         }
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails.getUsername(),
-                userDetails.getPassword(),
+                encodedPassword,
                 userDetails.getAuthorities()
         );
     }
